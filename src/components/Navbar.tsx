@@ -34,7 +34,7 @@ const Navbar = () => {
                     <div className="flex-shrink-0 flex items-center">
                         <Link to="/" className="flex items-center gap-2">
                             <img
-                                src="/logo.png"
+                                src="/logofondo.png"
                                 alt="Ocean Construction"
                                 className={`transition-all duration-300 hover:scale-105 ${isScrolled ? 'h-20' : 'h-24'}`}
                             />

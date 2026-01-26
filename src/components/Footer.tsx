@@ -8,7 +8,7 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                     {/* Column 1: Logo & Socials */}
                     <div className="col-span-1">
-                        <img src="/logo.png" alt="Ocean Construction" className="h-16 mb-4 filter brightness-0 invert" />
+                        <img src="/logofondo.png" alt="Ocean Construction" className="h-20 mb-4" />
                         <p className="text-gray-400 mb-6 text-sm">
                             Building quality structures and lasting relationships using an Ocean of ideas for your home.
                         </p>
