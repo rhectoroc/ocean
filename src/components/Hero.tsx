@@ -29,9 +29,7 @@ const Hero = () => {
         // Pause others to save resources, but keep them ready
         videoRefs.current.forEach((vid, idx) => {
             if (idx !== currentVideoIndex && vid) {
-                // Determine if we should pause or just let it be ready
                 if (!vid.paused) vid.pause();
-                // Optional: Preload the next one specifically if needed, but preload="auto" handles it mostly
             }
         });
     }, [currentVideoIndex]);
@@ -42,44 +40,46 @@ const Hero = () => {
     };
 
     useGSAP(() => {
-        // Initial Elegant Entrance
-        const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+        // Initial Elegant Entrance - Fade and reveal
+        const tl = gsap.timeline({
+            defaults: { ease: 'power4.out' },
+            onComplete: () => {
+                // Initialize ScrollTrigger after entrance to avoid conflicts
+                gsap.to(titleRef.current, {
+                    y: 150,
+                    force3D: true,
+                    scrollTrigger: {
+                        trigger: container.current,
+                        start: "top top",
+                        end: "bottom top",
+                        scrub: 1
+                    }
+                });
+
+                gsap.to(subtitleRef.current, {
+                    y: 100,
+                    force3D: true,
+                    scrollTrigger: {
+                        trigger: container.current,
+                        start: "top top",
+                        end: "bottom top",
+                        scrub: 1
+                    }
+                });
+            }
+        });
 
         tl.from(titleRef.current, {
-            y: 120,
+            y: 60,
             opacity: 0,
-            duration: 1.8,
-            delay: 0.5
+            duration: 1.5,
+            delay: 0.3
         })
             .from(subtitleRef.current, {
-                y: 80,
+                y: 40,
                 opacity: 0,
-                duration: 1.8
-            }, "-=1.4");
-
-        // Parallax "Smooth Scroll" Effect
-        // The text moves at a different speed than the scroll, creating a smooth floating feeling
-        gsap.to(titleRef.current, {
-            y: 150, // Move down while scrolling
-            ease: "none",
-            scrollTrigger: {
-                trigger: container.current,
-                start: "top top",
-                end: "bottom top",
-                scrub: 1.5 // Smooth scrubbing delay
-            }
-        });
-
-        gsap.to(subtitleRef.current, {
-            y: 100, // Move down slower for depth
-            ease: "none",
-            scrollTrigger: {
-                trigger: container.current,
-                start: "top top",
-                end: "bottom top",
-                scrub: 1.5
-            }
-        });
+                duration: 1.5
+            }, "-=1.2");
 
     }, { scope: container });
 
@@ -110,17 +110,17 @@ const Hero = () => {
 
             {/* Content */}
             <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col justify-center h-full pt-20">
-                <div className="mb-6 overflow-hidden">
-                    <h1 ref={titleRef} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight mb-2">
+                <div className="mb-6 relative z-10"> {/* Removed overflow-hidden and added relative */}
+                    <h1 ref={titleRef} className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tight mb-2 leading-[1.1]">
                         An <span className="text-ocean-400">OCEAN</span> of ideas
                     </h1>
-                    <h1 ref={subtitleRef} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-ocean-400 tracking-tight">
+                    <h1 ref={subtitleRef} className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-ocean-400 tracking-tight leading-[1.1]">
                         for your home!
                     </h1>
                 </div>
 
-                <Reveal width="100%" delay={1.8}>
-                    <p className="mt-4 text-xl sm:text-2xl text-gray-100 max-w-2xl mb-10 mx-auto sm:mx-0 drop-shadow-md">
+                <Reveal width="100%" delay={1.2}>
+                    <p className="mt-4 text-xl sm:text-2xl text-gray-100 max-w-2xl mb-10 mx-auto sm:mx-0 drop-shadow-lg font-medium">
                         Professional construction and remodeling services tailored to your needs. Quality, integrity, and excellence in every detail.
                     </p>
 

@@ -18,6 +18,23 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_dev_key_123';
 
+// --- SEED ADMIN (Ensure at least one user exists) ---
+async function seedAdmin() {
+    try {
+        const result = await query('SELECT count(*) FROM users');
+        if (parseInt(result.rows[0].count) === 0) {
+            console.log('No users found. Creating default admin...');
+            const defaultPass = 'FvBBy2W$2476';
+            const hash = await bcrypt.hash(defaultPass, 10);
+            await query('INSERT INTO users (email, password_hash) VALUES ($1, $2)', ['rhectoroc@gmail.com', hash]);
+            console.log('Default admin created: rhectoroc@gmail.com');
+        }
+    } catch (err) {
+        console.error('Seeding error:', err);
+    }
+}
+seedAdmin();
+
 // Login Endpoint
 app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
