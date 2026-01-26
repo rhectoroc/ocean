@@ -4,13 +4,18 @@ import { ArrowRight } from 'lucide-react';
 const Hero = () => {
     return (
         <div className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-            {/* Background Image */}
+            {/* Background Video */}
             <div className="absolute inset-0 z-0">
-                <img
-                    src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop"
-                    alt="Modern House Construction"
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
                     className="w-full h-full object-cover"
-                />
+                >
+                    <source src="/hero.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-black/50"></div>
             </div>
@@ -18,8 +23,8 @@ const Hero = () => {
             {/* Content */}
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
                 <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight mb-6">
-                    Building Your Vision <br className="hidden sm:block" />
-                    <span className="text-ocean-400">With Precision</span>
+                    An <span className="text-ocean-400">OCEAN</span> of ideas <br className="hidden sm:block" />
+                    for your home!
                 </h1>
 
                 <p className="mt-4 text-xl sm:text-2xl text-gray-200 max-w-2xl mb-10 mx-auto sm:mx-0">

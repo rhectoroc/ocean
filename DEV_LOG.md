@@ -7,3 +7,5 @@
 2026-01-26 [CMS] Created Admin Panel: Login Page and Dashboard for Project management (Create/Delete) with Image Preview.
 2026-01-26 [FIX] Removed unused `React` imports from all components to satisfy linting rules for production build.
 2026-01-26 [FIX] Downgraded Tailwind CSS to v3.4 to resolve configuration mismatch with PostCSS, ensuring successful production build.
+2026-01-26 [ASSETS] Integrated local assets: Replaced Hero background with `hero.mp4`, updated Navbar with `logo.png`, and set `favicon.png`.
+2026-01-26 [CONTENT] Updated Hero slogan to "An OCEAN of ideas for your home!" and Browser Tab title. Created `db/create_admin.sql`.
