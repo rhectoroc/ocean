@@ -1,33 +1,51 @@
 import express from 'express';
 import cors from 'cors';
 import { query } from './db.js';
+import { ExpressAuth, getSession } from "@auth/express";
+import { authConfig } from "./auth.config.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
 
 const app = express();
-const port = process.env.PORT || 3001; // Usamos 3001 para evitar conflictos con Vite (3000/5173)
+const port = process.env.PORT || 3001;
+
+// Metadata for directory resolution
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Trust proxy for secure cookies in production (EasyPanel)
+app.set("trust proxy", true);
 
 app.use(cors({
-    origin: '*', // Allow all origins for development. In production, restrictive to your domain.
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// --- AUTHENTICATION ---
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_dev_key_123';
+// --- AUTH.JS MIDDLEWARE ---
+// This handles /api/auth/* routes automatically (signin, signout, session, etc.)
+app.use("/api/auth", ExpressAuth(authConfig));
 
 // --- SEED ADMIN (Ensure at least one user exists) ---
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'rhectoroc@gmail.com';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'FvBBy2W$2476';
+
 async function seedAdmin() {
     try {
-        const result = await query('SELECT count(*) FROM users');
-        if (parseInt(result.rows[0].count) === 0) {
-            console.log('No users found. Creating default admin...');
-            const defaultPass = 'FvBBy2W$2476';
-            const hash = await bcrypt.hash(defaultPass, 10);
-            await query('INSERT INTO users (email, password_hash) VALUES ($1, $2)', ['rhectoroc@gmail.com', hash]);
-            console.log('Default admin created: rhectoroc@gmail.com');
+        const result = await query('SELECT * FROM users WHERE email = $1', [ADMIN_EMAIL]);
+        if (result.rows.length === 0) {
+            console.log(`Admin user ${ADMIN_EMAIL} not found. Creating...`);
+            const hash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+            await query('INSERT INTO users (email, password_hash) VALUES ($1, $2)', [ADMIN_EMAIL, hash]);
+            console.log('Admin user created successfully.');
+        } else if (process.env.FORCE_ADMIN_RESET === 'true') {
+            const hash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+            await query('UPDATE users SET password_hash = $2 WHERE email = $1', [ADMIN_EMAIL, hash]);
+            console.log('Admin password reset forced via ENV.');
         }
     } catch (err) {
         console.error('Seeding error:', err);
@@ -35,49 +53,20 @@ async function seedAdmin() {
 }
 seedAdmin();
 
-// Login Endpoint
-app.post('/api/auth/login', async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const result = await query('SELECT * FROM users WHERE email = $1', [email]);
-        const user = result.rows[0];
-
-        if (!user) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        const validPassword = await bcrypt.compare(password, user.password_hash);
-        if (!validPassword) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '8h' });
-        res.json({ token, user: { id: user.id, email: user.email } });
-
-    } catch (err) {
-        console.error('Login error:', err);
-        res.status(500).json({ error: 'Internal server error' });
+// --- AUTHENTICATION MIDDLEWARE ---
+const authenticatedUser = async (req, res, next) => {
+    const session = await getSession(req, authConfig);
+    if (session?.user) {
+        req.user = session.user;
+        return next();
     }
-});
-
-// Middleware to verify JWT
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-    if (!token) return res.sendStatus(401);
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
-    });
+    res.status(401).json({ error: "Unauthorized" });
 };
 
 // --- PROTECTED ROUTES (CRUD) ---
 
 // Create Project
-app.post('/api/projects', authenticateToken, async (req, res) => {
+app.post('/api/projects', authenticatedUser, async (req, res) => {
     const { title, description, image_url, category } = req.body;
     try {
         const result = await query(
@@ -92,7 +81,7 @@ app.post('/api/projects', authenticateToken, async (req, res) => {
 });
 
 // Delete Project
-app.delete('/api/projects/:id', authenticateToken, async (req, res) => {
+app.delete('/api/projects/:id', authenticatedUser, async (req, res) => {
     const { id } = req.params;
     try {
         await query('DELETE FROM projects WHERE id = $1', [id]);
@@ -133,13 +122,6 @@ app.get('/health', (req, res) => {
 });
 
 // Serve Static Frontend (Production)
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Serve contents of the dist folder (up one level from server)
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // Catch-all route to serve index.html for client-side routing

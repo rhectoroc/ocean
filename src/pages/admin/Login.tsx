@@ -7,31 +7,46 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
         try {
-            const res = await fetch(`${API_URL}/auth/login`, {
+            // 1. Obtener el token CSRF (Requisito de seguridad de Auth.js)
+            const csrfRes = await fetch(`${API_URL}/auth/csrf`);
+            const { csrfToken } = await csrfRes.json();
+
+            // 2. Enviar credenciales al callback de Auth.js
+            // Usamos application/x-www-form-urlencoded que es lo que espera el provider
+            const res = await fetch(`${API_URL}/auth/callback/credentials`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    email,
+                    password,
+                    csrfToken,
+                    callbackUrl: '/admin/dashboard',
+                    json: 'true',
+                    redirect: 'false'
+                }),
             });
 
-            const data = await res.json();
-
             if (!res.ok) {
-                throw new Error(data.error || 'Login failed');
+                throw new Error('Credenciales inválidas o error de conexión');
             }
 
-            // Store token in localStorage (simplest for now)
-            localStorage.setItem('ocean_token', data.token);
+            // Si llegamos aquí, la sesión se ha guardado en una Cookie segura (HTTP-Only)
+            // No necesitamos guardar nada en localStorage
             navigate('/admin/dashboard');
 
         } catch (err: any) {
             setError(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -60,6 +75,7 @@ const Login = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ocean-500 min-h-[44px]"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            disabled={loading}
                         />
                     </div>
                     <div>
@@ -70,13 +86,15 @@ const Login = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ocean-500 min-h-[44px]"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            disabled={loading}
                         />
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-ocean-600 text-white py-3 rounded-md font-semibold hover:bg-ocean-700 transition-colors min-h-[44px]"
+                        disabled={loading}
+                        className={`w-full bg-ocean-600 text-white py-3 rounded-md font-semibold hover:bg-ocean-700 transition-colors min-h-[44px] ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
-                        Sign In
+                        {loading ? 'Iniciando sesión...' : 'Sign In'}
                     </button>
                 </form>
             </div>

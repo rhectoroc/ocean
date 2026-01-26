@@ -18,12 +18,26 @@ const Dashboard = () => {
     });
 
     useEffect(() => {
-        const token = localStorage.getItem('ocean_token');
-        if (!token) {
-            navigate('/admin');
-            return;
-        }
-        fetchProjects();
+        const checkSession = async () => {
+            try {
+                // Verificamos la sesión con Auth.js
+                const res = await fetch(`${API_URL}/auth/session`);
+                const session = await res.json();
+
+                if (!session || Object.keys(session).length === 0) {
+                    navigate('/admin');
+                    return;
+                }
+
+                // Si hay sesión, cargamos los proyectos
+                fetchProjects();
+            } catch (err) {
+                console.error('Session check failed', err);
+                navigate('/admin');
+            }
+        };
+
+        checkSession();
     }, [navigate]);
 
     const fetchProjects = async () => {
@@ -37,25 +51,39 @@ const Dashboard = () => {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('ocean_token');
-        navigate('/admin');
+    const handleLogout = async () => {
+        try {
+            // 1. Obtener CSRF para cerrar sesión
+            const csrfRes = await fetch(`${API_URL}/auth/csrf`);
+            const { csrfToken } = await csrfRes.json();
+
+            // 2. Ejecutar SignOut de Auth.js
+            await fetch(`${API_URL}/auth/signout`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ csrfToken })
+            });
+
+            navigate('/admin');
+        } catch (err) {
+            console.error('Logout failed', err);
+            navigate('/admin');
+        }
     };
 
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure you want to delete this project?')) return;
 
-        const token = localStorage.getItem('ocean_token');
         try {
+            // Ya no enviamos Authorization Header, Auth.js usa Cookies seguras
             const res = await fetch(`${API_URL}/projects/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                method: 'DELETE'
             });
 
             if (res.ok) {
                 setProjects(projects.filter(p => p.id !== id));
             } else {
-                alert('Failed to delete project');
+                alert('No tienes permisos para realizar esta acción');
             }
         } catch (err) {
             console.error(err);
@@ -64,14 +92,12 @@ const Dashboard = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const token = localStorage.getItem('ocean_token');
 
         try {
             const res = await fetch(`${API_URL}/projects`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             });
@@ -82,12 +108,14 @@ const Dashboard = () => {
                 setShowForm(false);
                 setFormData({ title: '', description: '', image_url: '', category: 'Construction' });
             } else {
-                alert('Failed to create project');
+                alert('Error al guardar el proyecto. Verifica tu sesión.');
             }
         } catch (err) {
             console.error(err);
         }
     };
+
+    if (loading) return <div className="min-h-screen flex items-center justify-center">Cargando dashboard...</div>;
 
     return (
         <div className="min-h-screen bg-gray-50">
