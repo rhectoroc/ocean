@@ -16,21 +16,34 @@ const About = () => {
                 <Reveal width="100%">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                         {/* Image Grid */}
-                        <div className="relative">
-                            <div className="grid grid-cols-2 gap-4">
-                                <img
-                                    src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2070&auto=format&fit=crop"
-                                    alt="Construction Site"
-                                    className="rounded-lg shadow-lg w-full h-64 object-cover mt-8"
-                                />
-                                <img
-                                    src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop"
-                                    alt="Worker"
-                                    className="rounded-lg shadow-lg w-full h-64 object-cover"
-                                />
+                        {/* Polaroid Video Stack */}
+                        <div className="relative h-[500px] w-full flex items-center justify-center">
+                            {/* Polaroid 1 */}
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -rotate-6 w-72 bg-white p-4 pb-12 shadow-2xl transition-all duration-500 hover:rotate-0 hover:scale-105 z-10">
+                                <div className="w-full h-64 bg-gray-800 overflow-hidden border border-gray-100">
+                                    <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity">
+                                        <source src="/hero.mp4" type="video/mp4" />
+                                    </video>
+                                </div>
+                                <div className="mt-4 text-center">
+                                    <span className="font-serif italic text-gray-600 text-lg">Foundation</span>
+                                </div>
                             </div>
-                            {/* Decoration Element */}
-                            <div className="absolute -z-10 bg-ocean-100 w-full h-full top-4 left-4 rounded-lg"></div>
+
+                            {/* Polaroid 2 */}
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-[40%] -translate-y-[40%] rotate-3 w-72 bg-white p-4 pb-12 shadow-2xl transition-all duration-500 hover:rotate-0 hover:scale-105 z-20 hover:z-30">
+                                <div className="w-full h-64 bg-gray-800 overflow-hidden border border-gray-100">
+                                    <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity">
+                                        <source src="/hero.mp4" type="video/mp4" />
+                                    </video>
+                                </div>
+                                <div className="mt-4 text-center">
+                                    <span className="font-serif italic text-gray-600 text-lg">Finishing</span>
+                                </div>
+                            </div>
+
+                            {/* Background Elements */}
+                            <div className="absolute -z-10 bg-ocean-100 w-96 h-96 rounded-full blur-3xl opacity-60 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
                         </div>
 
                         {/* Content */}

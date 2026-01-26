@@ -36,7 +36,7 @@ const Navbar = () => {
                             <img
                                 src="/logo.png"
                                 alt="Ocean Construction"
-                                className={`transition-all duration-300 hover:scale-105 ${isScrolled ? 'h-20' : 'h-24 filter brightness-0 invert'}`}
+                                className={`transition-all duration-300 hover:scale-105 ${isScrolled ? 'h-20' : 'h-24'}`}
                             />
                         </Link>
                     </div>
@@ -60,8 +60,8 @@ const Navbar = () => {
                         <a
                             href="tel:+10000000000"
                             className={`px-5 py-2.5 rounded-md font-medium transition-all hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 ${isScrolled
-                                    ? 'bg-ocean-600 text-white hover:bg-ocean-700'
-                                    : 'bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20'
+                                ? 'bg-ocean-600 text-white hover:bg-ocean-700'
+                                : 'bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20'
                                 }`}
                         >
                             <Phone size={18} />
@@ -72,8 +72,8 @@ const Navbar = () => {
                         <Link
                             to="/admin"
                             className={`transition-colors p-2 rounded-full ${isScrolled
-                                    ? 'text-gray-400 hover:text-ocean-600 hover:bg-ocean-50'
-                                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                                ? 'text-gray-400 hover:text-ocean-600 hover:bg-ocean-50'
+                                : 'text-white/80 hover:text-white hover:bg-white/10'
                                 }`}
                             title="Sign In"
                         >
