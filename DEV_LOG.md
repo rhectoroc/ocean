@@ -11,5 +11,7 @@
 2026-01-26 [CONTENT] Updated Hero slogan to "An OCEAN of ideas for your home!" and Browser Tab title. Created `db/create_admin.sql`.
 2026-01-26 [CONTENT] Updated Hero slogan to "An OCEAN of ideas for your home!" and Browser Tab title. Created `db/create_admin.sql`.
 2026-01-26 [PULISH] Enhanced UI: Applied `framer-motion` animations (Titles, Reveals), updated Footer (Logo + Map), and Navbar (Larger Logo + Sign In Icon).
-2026-01-26 [POLISH] Replaced Framer Motion with GSAP for Hero Title animation. Implemented transparent-to-white Navbar scroll effect. Lightened Hero video overlay.
+2026-01-26 [POLISH] Replaced Framer Motion with GSAP for Hero Title animation. Implemented transparent-to-white Navbar scroll effect. Lightened Hero video overlay. Added infinite floating animation to Hero title.
+2026-01-26 [POLISH] Replaced Framer Motion with GSAP for Hero Title animation. Implemented transparent-to-white Navbar scroll effect. Lightened Hero video overlay. Added infinite floating animation to Hero title.
+2026-01-26 [PULISH] Redesigned Services Section: Converted to static, high-performance GSAP animated layout. Added "Process Flow" and "Parallax Service Grid" with glassmorphism effects, matching original design intent but modernized.
 2026-01-26 [BUILD] Production build successful. Ready for deployment.

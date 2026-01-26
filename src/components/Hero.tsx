@@ -26,6 +26,25 @@ const Hero = () => {
                 duration: 1.2
             }, "-=1");
 
+        // Infinite floating animation (after entrance)
+        gsap.to(titleRef.current, {
+            y: -15, // Float up
+            duration: 3,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: 2 // Wait for entrance
+        });
+
+        gsap.to(subtitleRef.current, {
+            y: -10, // Float up slightly different
+            duration: 2.5,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: 2.2 // Wait for entrance
+        });
+
     }, { scope: container });
 
     return (
