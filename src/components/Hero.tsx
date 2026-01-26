@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Reveal } from './Animations';
@@ -10,6 +10,14 @@ const Hero = () => {
     const container = useRef(null);
     const titleRef = useRef(null);
     const subtitleRef = useRef(null);
+
+    // Video Playlist
+    const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+    const videos = ["/hero.mp4", "/hero2.mp4", "/hero3.mp4"];
+
+    const handleVideoEnded = () => {
+        setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
+    };
 
     useGSAP(() => {
         const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
@@ -52,13 +60,14 @@ const Hero = () => {
             {/* Background Video */}
             <div className="absolute inset-0 z-0">
                 <video
+                    key={currentVideoIndex} // Force re-render to ensure new source plays immediately
                     autoPlay
-                    loop
                     muted
                     playsInline
+                    onEnded={handleVideoEnded}
                     className="w-full h-full object-cover"
                 >
-                    <source src="/hero.mp4" type="video/mp4" />
+                    <source src={videos[currentVideoIndex]} type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
                 {/* Overlay - Lightened from bg-black/50 to bg-black/30 */}

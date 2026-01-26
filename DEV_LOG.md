@@ -17,4 +17,7 @@
 2026-01-26 [FIX] Resolved Services Grid visibility issue by enforcing `gsap.fromTo` animation state (ensuring opacity: 1) and adding a dark background fallback if the image loads slowly.
 2026-01-26 [PULISH] Removed filters from Navbar Logo to fix "white box" issue. Transformed "About Us" images into an interactive "Stacked Polaroid Video" gallery using `hero.mp4` placeholders.
 2026-01-26 [ASSETS] Updated application logo to `logofondo.png` in Navbar and Footer, removing inversion filters to display the original full-color image.
+2026-01-26 [PULISH] Enhanced "About Us" with an interactive 3-card Polaroid stack. Implemented "Click-to-Expand" functionality using `framer-motion` layout animations, allowing users to view full-size videos with controls.
+2026-01-26 [PULISH] Enhanced "About Us" with an interactive 3-card Polaroid stack. Implemented "Click-to-Expand" functionality using `framer-motion` layout animations, allowing users to view full-size videos with controls.
+2026-01-26 [ASSETS] Integrated multi-video background for Hero section. Configured a seamless playlist loop cycling through `hero.mp4`, `hero2.mp4`, and `hero3.mp4`.
 2026-01-26 [BUILD] Production build successful. Ready for deployment.
