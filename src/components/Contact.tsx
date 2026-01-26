@@ -1,17 +1,20 @@
 
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { Reveal } from './Animations';
 
 const Contact = () => {
     return (
         <section id="contact" className="py-20 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
-                    <h2 className="text-ocean-600 font-bold uppercase tracking-wide mb-2">Contact Us</h2>
-                    <h3 className="text-3xl md:text-4xl font-bold text-gray-900">Get In Touch</h3>
-                    <p className="mt-4 text-xl text-gray-500 max-w-2xl mx-auto">
-                        Ready to start your project? Contact us today for a free estimate.
-                    </p>
-                </div>
+                <Reveal width="100%">
+                    <div className="text-center mb-16">
+                        <h2 className="text-ocean-600 font-bold uppercase tracking-wide mb-2">Contact Us</h2>
+                        <h3 className="text-3xl md:text-4xl font-bold text-gray-900">Get In Touch</h3>
+                        <p className="mt-4 text-xl text-gray-500 max-w-2xl mx-auto">
+                            Ready to start your project? Contact us today for a free estimate.
+                        </p>
+                    </div>
+                </Reveal>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     {/* Contact Info */}

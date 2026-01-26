@@ -9,3 +9,6 @@
 2026-01-26 [FIX] Downgraded Tailwind CSS to v3.4 to resolve configuration mismatch with PostCSS, ensuring successful production build.
 2026-01-26 [ASSETS] Integrated local assets: Replaced Hero background with `hero.mp4`, updated Navbar with `logo.png`, and set `favicon.png`.
 2026-01-26 [CONTENT] Updated Hero slogan to "An OCEAN of ideas for your home!" and Browser Tab title. Created `db/create_admin.sql`.
+2026-01-26 [CONTENT] Updated Hero slogan to "An OCEAN of ideas for your home!" and Browser Tab title. Created `db/create_admin.sql`.
+2026-01-26 [PULISH] Enhanced UI: Applied `framer-motion` animations (Titles, Reveals), updated Footer (Logo + Map), and Navbar (Larger Logo + Sign In Icon).
+2026-01-26 [BUILD] Production build successful. Ready for deployment.
