@@ -35,17 +35,21 @@ const ServicesSection = () => {
         });
 
         // Animate Service Cards
-        gsap.from(".service-card", {
-            scrollTrigger: {
-                trigger: "#service-grid",
-                start: "top 75%",
-            },
-            y: 100,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: "power3.out"
-        });
+        // Animate Service Cards  
+        gsap.fromTo(".service-card",
+            { y: 50, opacity: 0 },
+            {
+                y: 0,
+                opacity: 1,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: "#service-grid",
+                    start: "top 80%", // Trigger earlier
+                }
+            }
+        );
 
     }, { scope: container });
 
@@ -108,11 +112,11 @@ const ServicesSection = () => {
             {/* Bottom Section: Service Grid with Parallax Look */}
             <section id="service-grid" className="py-24 bg-gray-50 relative">
                 {/* Background Image with Overlay */}
-                <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 z-0 bg-gray-900">
                     <img
                         src="https://images.unsplash.com/photo-1581094794329-cd1361ddeeeb?q=80&w=2070&auto=format&fit=crop"
                         alt="Background"
-                        className="w-full h-full object-cover fixed-background" // Note: fixed-background class handles visual parity if simple CSS parallax
+                        className="w-full h-full object-cover fixed-background opacity-60"
                     />
                     <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-[2px]"></div>
                 </div>

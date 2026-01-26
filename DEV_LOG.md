@@ -14,4 +14,5 @@
 2026-01-26 [POLISH] Replaced Framer Motion with GSAP for Hero Title animation. Implemented transparent-to-white Navbar scroll effect. Lightened Hero video overlay. Added infinite floating animation to Hero title.
 2026-01-26 [POLISH] Replaced Framer Motion with GSAP for Hero Title animation. Implemented transparent-to-white Navbar scroll effect. Lightened Hero video overlay. Added infinite floating animation to Hero title.
 2026-01-26 [PULISH] Redesigned Services Section: Converted to static, high-performance GSAP animated layout. Added "Process Flow" and "Parallax Service Grid" with glassmorphism effects, matching original design intent but modernized.
+2026-01-26 [FIX] Resolved Services Grid visibility issue by enforcing `gsap.fromTo` animation state (ensuring opacity: 1) and adding a dark background fallback if the image loads slowly.
 2026-01-26 [BUILD] Production build successful. Ready for deployment.
