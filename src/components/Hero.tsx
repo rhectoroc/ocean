@@ -2,9 +2,10 @@ import { ArrowRight } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Reveal } from './Animations';
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const Hero = () => {
     const container = useRef(null);
@@ -41,37 +42,43 @@ const Hero = () => {
     };
 
     useGSAP(() => {
-        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        // Initial Elegant Entrance
+        const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
 
         tl.from(titleRef.current, {
-            y: 100,
+            y: 120,
             opacity: 0,
-            duration: 1.5,
+            duration: 1.8,
             delay: 0.5
         })
             .from(subtitleRef.current, {
-                y: 50,
+                y: 80,
                 opacity: 0,
-                duration: 1.2
-            }, "-=1");
+                duration: 1.8
+            }, "-=1.4");
 
-        // Infinite floating animation (after entrance)
+        // Parallax "Smooth Scroll" Effect
+        // The text moves at a different speed than the scroll, creating a smooth floating feeling
         gsap.to(titleRef.current, {
-            y: -15, // Float up
-            duration: 3,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            delay: 2 // Wait for entrance
+            y: 150, // Move down while scrolling
+            ease: "none",
+            scrollTrigger: {
+                trigger: container.current,
+                start: "top top",
+                end: "bottom top",
+                scrub: 1.5 // Smooth scrubbing delay
+            }
         });
 
         gsap.to(subtitleRef.current, {
-            y: -10, // Float up slightly different
-            duration: 2.5,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            delay: 2.2 // Wait for entrance
+            y: 100, // Move down slower for depth
+            ease: "none",
+            scrollTrigger: {
+                trigger: container.current,
+                start: "top top",
+                end: "bottom top",
+                scrub: 1.5
+            }
         });
 
     }, { scope: container });

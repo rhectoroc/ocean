@@ -18,7 +18,8 @@
 2026-01-26 [PULISH] Removed filters from Navbar Logo to fix "white box" issue. Transformed "About Us" images into an interactive "Stacked Polaroid Video" gallery using `hero.mp4` placeholders.
 2026-01-26 [ASSETS] Updated application logo to `logofondo.png` in Navbar and Footer, removing inversion filters to display the original full-color image.
 2026-01-26 [PULISH] Enhanced "About Us" with an interactive 3-card Polaroid stack. Implemented "Click-to-Expand" functionality using `framer-motion` layout animations, allowing users to view full-size videos with controls.
-2026-01-26 [PULISH] Enhanced "About Us" with an interactive 3-card Polaroid stack. Implemented "Click-to-Expand" functionality using `framer-motion` layout animations, allowing users to view full-size videos with controls.
 2026-01-26 [ASSETS] Integrated multi-video background for Hero section. Configured a seamless playlist loop cycling through `hero.mp4`, `hero2.mp4`, and `hero3.mp4`.
 2026-01-26 [PULISH] Optimized Hero video player for smoother transitions. Implemented "Double Buffering" strategy (simultaneous rendering with opacity toggles and `preload="auto"`) to eliminate black screens and stuttering between clips.
+2026-01-26 [POLISH] Replaced "Infinite Floating" animation on Hero Title with a premium "Parallax Smooth Scroll" effect. Title and subtitle now scrub gently along with the scroll for a deeper, more modern feel.
+2026-01-26 [FIX] Resolved CORS errors by configuring Vite Proxy (`/api` -> port 3001) and updating backend CORS policy to allow development origins. Updated frontend to use relative API paths for better portability between local and production environments.
 2026-01-26 [BUILD] Production build successful. Ready for deployment.

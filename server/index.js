@@ -5,7 +5,11 @@ import { query } from './db.js';
 const app = express();
 const port = process.env.PORT || 3001; // Usamos 3001 para evitar conflictos con Vite (3000/5173)
 
-app.use(cors());
+app.use(cors({
+    origin: '*', // Allow all origins for development. In production, restrictive to your domain.
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // --- AUTHENTICATION ---

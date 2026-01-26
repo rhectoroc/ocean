@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, LogOut, Image as ImageIcon } from 'lucide-react';
-import type { Project } from '../../lib/api'; // Reuse types
+import { API_URL, type Project } from '../../lib/api'; // Reuse types and central API config
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -16,8 +16,6 @@ const Dashboard = () => {
         image_url: '',
         category: 'Construction'
     });
-
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
     useEffect(() => {
         const token = localStorage.getItem('ocean_token');
