@@ -20,4 +20,5 @@
 2026-01-26 [PULISH] Enhanced "About Us" with an interactive 3-card Polaroid stack. Implemented "Click-to-Expand" functionality using `framer-motion` layout animations, allowing users to view full-size videos with controls.
 2026-01-26 [PULISH] Enhanced "About Us" with an interactive 3-card Polaroid stack. Implemented "Click-to-Expand" functionality using `framer-motion` layout animations, allowing users to view full-size videos with controls.
 2026-01-26 [ASSETS] Integrated multi-video background for Hero section. Configured a seamless playlist loop cycling through `hero.mp4`, `hero2.mp4`, and `hero3.mp4`.
+2026-01-26 [PULISH] Optimized Hero video player for smoother transitions. Implemented "Double Buffering" strategy (simultaneous rendering with opacity toggles and `preload="auto"`) to eliminate black screens and stuttering between clips.
 2026-01-26 [BUILD] Production build successful. Ready for deployment.

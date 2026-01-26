@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Reveal } from './Animations';
@@ -11,12 +11,33 @@ const Hero = () => {
     const titleRef = useRef(null);
     const subtitleRef = useRef(null);
 
-    // Video Playlist
+    // Video Playlist Optimization
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
     const videos = ["/hero.mp4", "/hero2.mp4", "/hero3.mp4"];
+    const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
+    useEffect(() => {
+        // Ensure the current video plays
+        const currentVideo = videoRefs.current[currentVideoIndex];
+
+        if (currentVideo) {
+            currentVideo.currentTime = 0;
+            currentVideo.play().catch(e => console.log("Auto-play prevented:", e));
+        }
+
+        // Pause others to save resources, but keep them ready
+        videoRefs.current.forEach((vid, idx) => {
+            if (idx !== currentVideoIndex && vid) {
+                // Determine if we should pause or just let it be ready
+                if (!vid.paused) vid.pause();
+                // Optional: Preload the next one specifically if needed, but preload="auto" handles it mostly
+            }
+        });
+    }, [currentVideoIndex]);
 
     const handleVideoEnded = () => {
-        setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
+        const nextIndex = (currentVideoIndex + 1) % videos.length;
+        setCurrentVideoIndex(nextIndex);
     };
 
     useGSAP(() => {
@@ -56,26 +77,32 @@ const Hero = () => {
     }, { scope: container });
 
     return (
-        <div ref={container} className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-            {/* Background Video */}
+        <div ref={container} className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-gray-900">
+            {/* Background Video Layer */}
             <div className="absolute inset-0 z-0">
-                <video
-                    key={currentVideoIndex} // Force re-render to ensure new source plays immediately
-                    autoPlay
-                    muted
-                    playsInline
-                    onEnded={handleVideoEnded}
-                    className="w-full h-full object-cover"
-                >
-                    <source src={videos[currentVideoIndex]} type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
+                {videos.map((src, index) => (
+                    <video
+                        key={src}
+                        ref={(el) => { if (el) videoRefs.current[index] = el; }}
+                        muted
+                        playsInline
+                        preload="auto"
+                        onEnded={() => {
+                            if (index === currentVideoIndex) handleVideoEnded();
+                        }}
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                            }`}
+                    >
+                        <source src={src} type="video/mp4" />
+                    </video>
+                ))}
+
                 {/* Overlay - Lightened from bg-black/50 to bg-black/30 */}
-                <div className="absolute inset-0 bg-black/30"></div>
+                <div className="absolute inset-0 bg-black/30 z-20"></div>
             </div>
 
             {/* Content */}
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col justify-center h-full pt-20">
+            <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col justify-center h-full pt-20">
                 <div className="mb-6 overflow-hidden">
                     <h1 ref={titleRef} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight mb-2">
                         An <span className="text-ocean-400">OCEAN</span> of ideas
