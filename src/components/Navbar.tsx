@@ -1,9 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, Phone, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    // Toggle background on scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 20);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const navItems = [
         { name: 'Home', path: '/' },
@@ -14,13 +24,20 @@ const Navbar = () => {
     ];
 
     return (
-        <nav className="w-full bg-white shadow-md fixed top-0 z-50">
+        <nav
+            className={`w-full fixed top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
+                }`}
+        >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
                     {/* Logo (2x size) */}
                     <div className="flex-shrink-0 flex items-center">
                         <Link to="/" className="flex items-center gap-2">
-                            <img src="/logo.png" alt="Ocean Construction" className="h-24 w-auto transition-transform duration-300 hover:scale-105" />
+                            <img
+                                src="/logo.png"
+                                alt="Ocean Construction"
+                                className={`transition-all duration-300 hover:scale-105 ${isScrolled ? 'h-20' : 'h-24 filter brightness-0 invert'}`}
+                            />
                         </Link>
                     </div>
 
@@ -29,13 +46,12 @@ const Navbar = () => {
                         {navItems.map((item) => (
                             <Link
                                 key={item.name}
-                                to={item.path.startsWith('/#') ? '/' : item.path} // Simple fix to ensure internal routing works or just use anchor for id jumps if needed. 
-                            // Actually better to stick to <a> for #hash jumps on home, or handle strictly. 
-                            // Let's keep <a> for now as in original but ensure styles match
+                                to={item.path.startsWith('/#') ? '/' : item.path}
                             >
                                 <a
                                     href={item.path}
-                                    className="text-gray-700 hover:text-ocean-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
+                                    className={`px-3 py-2 text-sm font-bold transition-colors duration-200 ${isScrolled ? 'text-gray-700 hover:text-ocean-600' : 'text-white hover:text-ocean-300'
+                                        }`}
                                 >
                                     {item.name}
                                 </a>
@@ -43,7 +59,10 @@ const Navbar = () => {
                         ))}
                         <a
                             href="tel:+10000000000"
-                            className="bg-ocean-600 text-white px-5 py-2.5 rounded-md font-medium hover:bg-ocean-700 transition-all hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2"
+                            className={`px-5 py-2.5 rounded-md font-medium transition-all hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 ${isScrolled
+                                    ? 'bg-ocean-600 text-white hover:bg-ocean-700'
+                                    : 'bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20'
+                                }`}
                         >
                             <Phone size={18} />
                             <span>Call Us</span>
@@ -52,7 +71,10 @@ const Navbar = () => {
                         {/* Sign In Icon */}
                         <Link
                             to="/admin"
-                            className="text-gray-400 hover:text-ocean-600 transition-colors p-2 rounded-full hover:bg-ocean-50"
+                            className={`transition-colors p-2 rounded-full ${isScrolled
+                                    ? 'text-gray-400 hover:text-ocean-600 hover:bg-ocean-50'
+                                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                                }`}
                             title="Sign In"
                         >
                             <User size={24} />
@@ -63,7 +85,8 @@ const Navbar = () => {
                     <div className="flex items-center md:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="inline-flex items-center justify-center p-3 rounded-md text-gray-700 hover:text-ocean-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ocean-500 min-h-[44px] min-w-[44px]"
+                            className={`inline-flex items-center justify-center p-3 rounded-md focus:outline-none min-h-[44px] min-w-[44px] ${isScrolled ? 'text-gray-700 hover:text-ocean-600' : 'text-white hover:text-ocean-300'
+                                }`}
                             aria-expanded={isOpen}
                         >
                             <span className="sr-only">Open main menu</span>
@@ -75,7 +98,7 @@ const Navbar = () => {
 
             {/* Mobile Menu */}
             {isOpen && (
-                <div className="md:hidden bg-white border-t border-gray-100">
+                <div className="md:hidden bg-white border-t border-gray-100 absolute w-full left-0 top-full shadow-xl">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         {navItems.map((item) => (
                             <a
