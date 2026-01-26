@@ -93,7 +93,8 @@ const Hero = () => {
                         ref={(el) => { if (el) videoRefs.current[index] = el; }}
                         muted
                         playsInline
-                        preload="auto"
+                        preload={index === 0 ? "auto" : "none"}
+                        poster={index === 0 ? "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2070&auto=format&fit=crop" : undefined}
                         onEnded={() => {
                             if (index === currentVideoIndex) handleVideoEnded();
                         }}

@@ -73,6 +73,8 @@ const About = () => {
                                                 muted={!isActive}
                                                 playsInline
                                                 controls={isActive}
+                                                preload="metadata"
+                                                poster="https://images.unsplash.com/photo-1541123356219-284ebe98ae3b?q=80&w=800&auto=format&fit=crop&fm=webp"
                                                 className="w-full h-full object-cover transition-opacity"
                                             >
                                                 <source src="/hero.mp4" type="video/mp4" />

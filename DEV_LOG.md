@@ -22,4 +22,5 @@
 2026-01-26 [PULISH] Optimized Hero video player for smoother transitions. Implemented "Double Buffering" strategy (simultaneous rendering with opacity toggles and `preload="auto"`) to eliminate black screens and stuttering between clips.
 2026-01-26 [POLISH] Replaced "Infinite Floating" animation on Hero Title with a premium "Parallax Smooth Scroll" effect. Title and subtitle now scrub gently along with the scroll for a deeper, more modern feel.
 2026-01-26 [FIX] Resolved CORS errors by configuring Vite Proxy (`/api` -> port 3001) and updating backend CORS policy to allow development origins. Updated frontend to use relative API paths for better portability between local and production environments.
+2026-01-26 [PERF] PageSpeed Optimizations: Implemented video posters to improve LCP, optimized Unsplash image parameters (WebP/Auto-size), and adjusted video preloading strategies (`metadata` vs `auto`) to reduce initial main thread load. Updated site metadata for better SEO.
 2026-01-26 [BUILD] Production build successful. Ready for deployment.
