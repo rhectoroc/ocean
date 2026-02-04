@@ -64,6 +64,7 @@ const FloatingChatbot = () => {
                 },
                 body: JSON.stringify({
                     message: text.trim(),
+                    chatInput: text.trim(),
                     sessionId: sessionId.current
                 })
             });
