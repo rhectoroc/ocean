@@ -25,3 +25,4 @@
 2026-01-26 [PERF] PageSpeed Optimizations: Implemented video posters to improve LCP, optimized Unsplash image parameters (WebP/Auto-size), and adjusted video preloading strategies (`metadata` vs `auto`) to reduce initial main thread load. Updated site metadata for better SEO.
 2026-01-26 [SECURITY] Migrated manual JWT authentication to the `Auth.js` (@auth/express) library. Implemented secure HTTP-Only session cookies and CSRF protection. Removed hardcoded credentials and moved everything to a secure Credentials Provider flow.
 2026-01-26 [BUILD] Production build successful. Ready for deployment.
+2026-02-04 [DIAGNOSIS] Investigated CredentialsSignin error in production. Created diagnostic scripts: `server/diagnose.js` for runtime checks, `db/diagnose_production.sql` for DB verification, `db/fix_production.sql` for table creation, and `GUIA_SOLUCION_AUTH.md` with step-by-step solution guide.
