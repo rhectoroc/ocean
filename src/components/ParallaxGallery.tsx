@@ -88,8 +88,8 @@ const ParallaxGallery = () => {
     }, []);
 
     return (
-        <section id="gallery" className="py-20 bg-black relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="gallery" className="py-20 bg-black relative overflow-hidden min-h-[600px] flex items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                         Our Work Gallery
@@ -105,10 +105,9 @@ const ParallaxGallery = () => {
                             <div key={index} className="parallax-img"></div>
                         ))}
                     </div>
+                    <div className="parallax-vignette"></div>
+                    <div id="parallax-dragger" ref={draggerRef}></div>
                 </div>
-
-                <div className="parallax-vignette"></div>
-                <div id="parallax-dragger" ref={draggerRef}></div>
             </div>
         </section>
     );
