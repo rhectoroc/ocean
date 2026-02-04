@@ -6,6 +6,7 @@ import './ParallaxGallery.css';
 gsap.registerPlugin(Draggable);
 
 const ParallaxGallery = () => {
+    const containerRef = useRef<HTMLDivElement>(null);
     const ringRef = useRef<HTMLDivElement>(null);
     const draggerRef = useRef<HTMLDivElement>(null);
     const xPosRef = useRef(0);
@@ -25,38 +26,48 @@ const ParallaxGallery = () => {
     ];
 
     useEffect(() => {
+        const container = containerRef.current;
         const ring = ringRef.current;
         const dragger = draggerRef.current;
 
-        if (!ring || !dragger) return;
+        if (!container || !ring || !dragger) return;
 
-        const imgs = ring.querySelectorAll('.parallax-img');
+        // Force 3D rendering context
+        container.style.transformStyle = 'preserve-3d';
+        ring.style.transformStyle = 'preserve-3d';
+
+        const imgs = Array.from(ring.children) as HTMLElement[];
 
         const getBgPos = (i: number) => {
             const rotation = gsap.getProperty(ring, 'rotationY') as number;
             return (-gsap.utils.wrap(0, 360, rotation - 180 - i * 36) / 360 * 400) + 'px 0px';
         };
 
-        // Initial setup - exactly like the example
-        gsap.timeline()
-            .set(dragger, { opacity: 0 }) // Make drag layer invisible
-            .set(ring, { rotationY: 180 }) // Set initial rotationY
-            .set(imgs, {
-                rotateY: (i) => i * -36,
+        // Initial setup
+        gsap.set(dragger, { opacity: 0 });
+        gsap.set(ring, { rotationY: 180 });
+
+        imgs.forEach((img, i) => {
+            gsap.set(img, {
+                rotateY: i * -36,
                 transformOrigin: '50% 50% 500px',
                 z: -500,
-                backgroundImage: (i) => `url(${images[i]})`,
-                backgroundPosition: (i) => getBgPos(i),
+                backgroundImage: `url(${images[i]})`,
+                backgroundPosition: getBgPos(i),
                 backgroundSize: 'cover',
-                backfaceVisibility: 'hidden'
-            })
-            .from(imgs, {
-                duration: 1.5,
-                y: 200,
-                opacity: 0,
-                stagger: 0.1,
-                ease: 'expo'
+                backfaceVisibility: 'hidden',
+                force3D: true
             });
+        });
+
+        // Entrance animation
+        gsap.from(imgs, {
+            duration: 1.5,
+            y: 200,
+            opacity: 0,
+            stagger: 0.1,
+            ease: 'expo'
+        });
 
         // Draggable setup
         Draggable.create(dragger, {
@@ -71,8 +82,10 @@ const ParallaxGallery = () => {
                 gsap.to(ring, {
                     rotationY: '-=' + ((Math.round(e.clientX) - xPosRef.current) % 360),
                     onUpdate: () => {
-                        gsap.set(imgs, {
-                            backgroundPosition: (i) => getBgPos(i)
+                        imgs.forEach((img, i) => {
+                            gsap.set(img, {
+                                backgroundPosition: getBgPos(i)
+                            });
                         });
                     }
                 });
@@ -102,7 +115,7 @@ const ParallaxGallery = () => {
                     </p>
                 </div>
 
-                <div className="parallax-container">
+                <div className="parallax-container" ref={containerRef}>
                     <div id="parallax-ring" ref={ringRef}>
                         {images.map((_, index) => (
                             <div key={index} className="parallax-img"></div>
