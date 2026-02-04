@@ -6,6 +6,7 @@ import Contact from '../../components/Contact';
 import Footer from '../../components/Footer';
 import ServicesSection from '../../components/ServicesSection';
 import ProjectsSection from '../../components/ProjectsSection';
+import ParallaxGallery from '../../components/ParallaxGallery';
 
 const Home = () => {
     return (
@@ -20,6 +21,8 @@ const Home = () => {
                 <ServicesSection />
 
                 <ProjectsSection />
+
+                <ParallaxGallery />
 
                 <Contact />
             </main>
