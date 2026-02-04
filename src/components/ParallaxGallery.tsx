@@ -30,6 +30,8 @@ const ParallaxGallery = () => {
 
         if (!ring || !dragger) return;
 
+        const imgs = ring.querySelectorAll('.parallax-img');
+
         const getBgPos = (i: number) => {
             const rotation = gsap.getProperty(ring, 'rotationY') as number;
             return (-gsap.utils.wrap(0, 360, rotation - 180 - i * 36) / 360 * 400) + 'px 0px';
@@ -39,15 +41,16 @@ const ParallaxGallery = () => {
         gsap.timeline()
             .set(dragger, { opacity: 0 }) // Make drag layer invisible
             .set(ring, { rotationY: 180 }) // Set initial rotationY
-            .set('.parallax-img', {
+            .set(imgs, {
                 rotateY: (i) => i * -36,
                 transformOrigin: '50% 50% 500px',
                 z: -500,
                 backgroundImage: (i) => `url(${images[i]})`,
                 backgroundPosition: (i) => getBgPos(i),
+                backgroundSize: 'cover',
                 backfaceVisibility: 'hidden'
             })
-            .from('.parallax-img', {
+            .from(imgs, {
                 duration: 1.5,
                 y: 200,
                 opacity: 0,
@@ -68,7 +71,7 @@ const ParallaxGallery = () => {
                 gsap.to(ring, {
                     rotationY: '-=' + ((Math.round(e.clientX) - xPosRef.current) % 360),
                     onUpdate: () => {
-                        gsap.set('.parallax-img', {
+                        gsap.set(imgs, {
                             backgroundPosition: (i) => getBgPos(i)
                         });
                     }
