@@ -1,8 +1,4 @@
-/* Parallax 3D Gallery Styles - Following original example exactly */
-html,
-body {
-    overflow-x: hidden;
-}
+/* Parallax 3D Gallery Styles - Scoped to avoid breaking global layout */
 
 #parallax-dragger,
 #parallax-ring,
@@ -12,9 +8,6 @@ body {
     height: 100%;
     transform-style: preserve-3d;
     user-select: none;
-}
-
-div {
     position: absolute;
 }
 
@@ -22,9 +15,6 @@ div {
     perspective: 2000px;
     width: 512px;
     height: 512px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     position: relative;
     margin: 100px auto;
 }
