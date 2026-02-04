@@ -18,11 +18,7 @@ const ParallaxGallery = () => {
         '/quality.png',
         '/construction.png',
         '/renovation.png',
-        '/quality.png',
-        '/construction.png',
-        '/renovation.png',
-        '/quality.png',
-        '/construction.png'
+        '/quality.png'
     ];
 
     useEffect(() => {
@@ -40,7 +36,7 @@ const ParallaxGallery = () => {
 
         const getBgPos = (i: number) => {
             const rotation = gsap.getProperty(ring, 'rotationY') as number;
-            return (-gsap.utils.wrap(0, 360, rotation - 180 - i * 36) / 360 * 400) + 'px 0px';
+            return (-gsap.utils.wrap(0, 360, rotation - 180 - i * 60) / 360 * 400) + 'px 0px';
         };
 
         // Initial setup
@@ -49,7 +45,7 @@ const ParallaxGallery = () => {
 
         imgs.forEach((img, i) => {
             gsap.set(img, {
-                rotateY: i * -36,
+                rotateY: i * -60,
                 transformOrigin: '50% 50% 600px',
                 z: -600,
                 backgroundImage: `url(${images[i]})`,
@@ -110,9 +106,6 @@ const ParallaxGallery = () => {
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                         Our Work Gallery
                     </h2>
-                    <p className="text-gray-400 text-lg">
-                        Drag to explore our portfolio in 3D
-                    </p>
                 </div>
 
                 <div className="parallax-container" ref={containerRef}>
