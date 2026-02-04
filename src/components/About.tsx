@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { CheckCircle, X as XIcon, Play } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { Reveal } from './Animations';
-import { motion, AnimatePresence } from 'framer-motion';
+import './CardGallery.css';
 
 const About = () => {
     const highlights = [
@@ -11,99 +10,57 @@ const About = () => {
         "100% Satisfaction Guaranteed"
     ];
 
-    const [activeCard, setActiveCard] = useState<number | null>(null);
-
-    const cards = [
-        { id: 1, title: "Foundation", rotate: -6, z: 10, offset: { x: "-50%", y: "-50%" } },
-        { id: 2, title: "Finishing", rotate: 3, z: 20, offset: { x: "-40%", y: "-40%" } },
-        { id: 3, title: "Planning", rotate: -3, z: 15, offset: { x: "-60%", y: "-35%" } }
-    ];
-
     return (
         <section id="about" className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <Reveal width="100%">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                        {/* Interactive Polaroid Stack */}
-                        <div className="relative h-[600px] w-full flex items-center justify-center">
-
-                            {/* Backdrop when active */}
-                            <AnimatePresence>
-                                {activeCard !== null && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        onClick={() => setActiveCard(null)}
-                                        className="fixed inset-0 bg-black/80 z-40 cursor-pointer backdrop-blur-sm"
-                                    />
-                                )}
-                            </AnimatePresence>
-
-                            {/* Cards */}
-                            {cards.map((card) => {
-                                const isActive = activeCard === card.id;
-
-                                return (
-                                    <motion.div
-                                        key={card.id}
-                                        layout
-                                        onClick={() => setActiveCard(isActive ? null : card.id)}
-                                        initial={false}
-                                        animate={{
-                                            rotate: isActive ? 0 : card.rotate,
-                                            scale: isActive ? 1.2 : 1,
-                                            zIndex: isActive ? 50 : card.z,
-                                            x: isActive ? "-50%" : card.offset.x,
-                                            y: isActive ? "-50%" : card.offset.y,
-                                            left: "50%",
-                                            top: "50%",
-                                            position: isActive ? "fixed" : "absolute",
-                                            width: isActive ? "auto" : "288px", // w-72 = 288px
-                                            height: isActive ? "auto" : "auto",
-                                        }}
-                                        transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                                        className={`bg-white p-4 pb-12 shadow-2xl cursor-pointer overflow-hidden ${isActive ? 'max-w-4xl w-[90vw] md:w-[800px] rounded-lg' : 'hover:scale-105 hover:z-30 transition-shadow'}`}
-                                        style={{ transformOrigin: "center center" }}
-                                    >
-                                        <div className={`bg-gray-800 overflow-hidden border border-gray-100 relative ${isActive ? 'h-[50vh] md:h-[500px]' : 'h-64'}`}>
-                                            <video
-                                                autoPlay
-                                                loop
-                                                muted={!isActive}
-                                                playsInline
-                                                controls={isActive}
-                                                preload="metadata"
-                                                poster="https://images.unsplash.com/photo-1541123356219-284ebe98ae3b?q=80&w=800&auto=format&fit=crop&fm=webp"
-                                                className="w-full h-full object-cover transition-opacity"
-                                            >
-                                                <source src="/hero.mp4" type="video/mp4" />
-                                            </video>
-
-                                            {/* Play Icon Hint if not active */}
-                                            {!isActive && (
-                                                <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
-                                                    <Play className="text-white fill-current" size={48} />
-                                                </div>
-                                            )}
+                        {/* Card Transition Gallery */}
+                        <div className="flex items-center justify-center">
+                            <div className="card-container bg-white shadow-lg">
+                                <div
+                                    className="card bg-blue-500 rounded-2xl h-[300px] w-full top-0 left-0"
+                                    style={{
+                                        backgroundImage: "url('/construction.png')",
+                                        backgroundColor: '#1e40af'
+                                    }}
+                                >
+                                    <div className="card-content">
+                                        <div className="card-title">Expert Construction</div>
+                                        <div className="card-description">
+                                            From foundation to finishing touches, we deliver exceptional quality in every project. Our experienced team ensures precision and excellence at every stage.
                                         </div>
-                                        <div className="mt-4 text-center flex justify-between items-center px-2">
-                                            <span className="font-serif italic text-gray-600 text-2xl">{card.title}</span>
-                                            {isActive && (
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); setActiveCard(null); }}
-                                                    className="text-gray-400 hover:text-red-500 transition-colors"
-                                                >
-                                                    <XIcon size={24} />
-                                                </button>
-                                            )}
+                                    </div>
+                                </div>
+                                <div
+                                    className="card bg-teal-600 rounded-2xl h-[200px] w-[200px] top-[305px] left-0 bottom-0"
+                                    style={{
+                                        backgroundImage: "url('/renovation.png')",
+                                        backgroundColor: '#0d9488'
+                                    }}
+                                >
+                                    <div className="card-content">
+                                        <div className="card-title">Modern Renovations</div>
+                                        <div className="card-description">
+                                            Transform your space with our innovative renovation services. We blend contemporary design with timeless craftsmanship.
                                         </div>
-                                    </motion.div>
-                                );
-                            })}
-
-                            {/* Background Elements */}
-                            <div className="absolute -z-10 bg-ocean-100/50 w-96 h-96 rounded-full blur-3xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    className="card-d3 bg-teal-600 rounded-2xl border-4 hover:border-0 border-white h-[280px] w-[305px] right-0 bottom-0"
+                                    style={{
+                                        backgroundImage: "url('/quality.png')",
+                                        backgroundColor: '#0d9488'
+                                    }}
+                                >
+                                    <div className="card-content">
+                                        <div className="card-title">Quality Assurance</div>
+                                        <div className="card-description">
+                                            Every project undergoes rigorous quality checks. We use premium materials and follow industry best practices to ensure lasting results.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Content */}
