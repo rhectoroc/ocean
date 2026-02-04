@@ -244,14 +244,10 @@ const ServicesSection = () => {
 
             {/* Bottom Section: Service Grid with Parallax Look */}
             <section id="service-grid" className="py-24 bg-gray-50 relative">
-                {/* Background Image with Overlay */}
-                <div className="absolute inset-0 z-0 bg-gray-900">
-                    <img
-                        src="https://images.unsplash.com/photo-1581094794329-cd1361ddeeeb?q=80&w=2070&auto=format&fit=crop"
-                        alt="Background"
-                        className="w-full h-full object-cover fixed-background opacity-60"
-                    />
-                    <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-[2px]"></div>
+                {/* Background Gradient - No external images */}
+                <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-900 via-ocean-900 to-gray-800">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(14,165,233,0.15),transparent_50%)]"></div>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(14,165,233,0.1),transparent_50%)]"></div>
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
