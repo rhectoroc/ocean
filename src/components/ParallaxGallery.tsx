@@ -32,7 +32,7 @@ const ParallaxGallery = () => {
 
         const getBgPos = (i: number) => {
             const rotation = gsap.getProperty(ring, 'rotationY') as number;
-            return (-gsap.utils.wrap(0, 360, rotation - 180 - i * 36) / 360 * 500) + 'px 0px';
+            return (-gsap.utils.wrap(0, 360, rotation - 180 - i * 36) / 360 * 400) + 'px 0px';
         };
 
         // Initial setup - exactly like the example

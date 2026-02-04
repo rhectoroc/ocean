@@ -1,4 +1,4 @@
-/* Parallax 3D Gallery Styles - Scoped to avoid breaking global layout */
+/* Parallax 3D Gallery Styles - Exact match to original example */
 
 #parallax-dragger,
 #parallax-ring,
@@ -8,15 +8,23 @@
     height: 100%;
     transform-style: preserve-3d;
     user-select: none;
+}
+
+#parallax-dragger,
+#parallax-ring,
+.parallax-img {
     position: absolute;
 }
 
 .parallax-container {
     perspective: 2000px;
-    width: 512px;
-    height: 512px;
+    width: 300px;
+    height: 300px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     position: relative;
-    margin: 100px auto;
+    margin: 0 auto;
 }
 
 .parallax-img {
@@ -26,6 +34,7 @@
 
 .parallax-vignette {
     width: 1400px;
+    position: absolute;
     left: 50%;
     transform: translateX(-50%);
     background: linear-gradient(to left,
@@ -39,12 +48,19 @@
 /* Mobile responsiveness */
 @media (max-width: 640px) {
     .parallax-container {
-        width: 300px;
-        height: 300px;
+        width: 250px;
+        height: 250px;
     }
 }
 
 @media (min-width: 641px) and (max-width: 1024px) {
+    .parallax-container {
+        width: 350px;
+        height: 350px;
+    }
+}
+
+@media (min-width: 1025px) {
     .parallax-container {
         width: 400px;
         height: 400px;
