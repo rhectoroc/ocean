@@ -68,15 +68,14 @@ const FloatingChatbot = () => {
                 })
             });
 
+            const data = await response.json();
             console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
+            console.log('Response data:', data);
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                console.error('Webhook error details:', data);
+                throw new Error(data.message || data.error || `HTTP error! status: ${response.status}`);
             }
-
-            const data = await response.json();
-            console.log('Response data:', data);
 
             // Add bot response
             const botMessage: Message = {
