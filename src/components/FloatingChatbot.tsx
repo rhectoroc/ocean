@@ -54,6 +54,9 @@ const FloatingChatbot = () => {
         setIsLoading(true);
 
         try {
+            console.log('Sending message to webhook:', WEBHOOK_URL);
+            console.log('Payload:', { message: text.trim(), sessionId: sessionId.current });
+
             const response = await fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: {
@@ -65,12 +68,20 @@ const FloatingChatbot = () => {
                 })
             });
 
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
+            console.log('Response data:', data);
 
             // Add bot response
             const botMessage: Message = {
                 id: (Date.now() + 1).toString(),
-                text: data.response || data.message || 'Lo siento, no pude procesar tu mensaje.',
+                text: data.response || data.message || data.output || 'Lo siento, no pude procesar tu mensaje.',
                 sender: 'bot',
                 timestamp: new Date()
             };
@@ -78,9 +89,18 @@ const FloatingChatbot = () => {
             setMessages(prev => [...prev, botMessage]);
         } catch (error) {
             console.error('Error sending message:', error);
+
+            let errorText = 'Lo siento, hubo un error al conectar con el servidor.';
+
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                errorText = 'No se pudo conectar al servidor. Verifica tu conexión a internet o que el webhook esté activo.';
+            } else if (error instanceof Error) {
+                errorText = `Error: ${error.message}`;
+            }
+
             const errorMessage: Message = {
                 id: (Date.now() + 1).toString(),
-                text: 'Lo siento, hubo un error al conectar con el servidor. Por favor intenta de nuevo.',
+                text: errorText,
                 sender: 'bot',
                 timestamp: new Date()
             };
