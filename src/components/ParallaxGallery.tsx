@@ -50,8 +50,8 @@ const ParallaxGallery = () => {
         imgs.forEach((img, i) => {
             gsap.set(img, {
                 rotateY: i * -36,
-                transformOrigin: '50% 50% 500px',
-                z: -500,
+                transformOrigin: '50% 50% 600px',
+                z: -600,
                 backgroundImage: `url(${images[i]})`,
                 backgroundPosition: getBgPos(i),
                 backgroundSize: 'cover',
