@@ -15,13 +15,13 @@ const ParallaxGallery = () => {
         '/construction.png',
         '/renovation.png',
         '/quality.png',
-        '/hero.mp4', // Placeholder - se puede reemplazar con más imágenes
         '/construction.png',
         '/renovation.png',
         '/quality.png',
         '/construction.png',
         '/renovation.png',
-        '/quality.png'
+        '/quality.png',
+        '/construction.png'
     ];
 
     useEffect(() => {
@@ -32,13 +32,13 @@ const ParallaxGallery = () => {
 
         const getBgPos = (i: number) => {
             const rotation = gsap.getProperty(ring, 'rotationY') as number;
-            return (-gsap.utils.wrap(0, 360, rotation - 180 - i * 36) / 360 * 400) + 'px 0px';
+            return (-gsap.utils.wrap(0, 360, rotation - 180 - i * 36) / 360 * 500) + 'px 0px';
         };
 
-        // Initial setup
+        // Initial setup - exactly like the example
         gsap.timeline()
-            .set(dragger, { opacity: 0 })
-            .set(ring, { rotationY: 180 })
+            .set(dragger, { opacity: 0 }) // Make drag layer invisible
+            .set(ring, { rotationY: 180 }) // Set initial rotationY
             .set('.parallax-img', {
                 rotateY: (i) => i * -36,
                 transformOrigin: '50% 50% 500px',
@@ -88,8 +88,8 @@ const ParallaxGallery = () => {
     }, []);
 
     return (
-        <section id="gallery" className="py-20 bg-black relative overflow-hidden min-h-[600px] flex items-center">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <section id="gallery" className="py-20 bg-black relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                         Our Work Gallery
