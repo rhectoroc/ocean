@@ -1,5 +1,6 @@
 
 import { Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
@@ -29,6 +30,8 @@ const Footer = () => {
                             <li><a href="#services" className="text-gray-400 hover:text-ocean-400 transition-colors">Services</a></li>
                             <li><a href="#projects" className="text-gray-400 hover:text-ocean-400 transition-colors">Projects</a></li>
                             <li><a href="#contact" className="text-gray-400 hover:text-ocean-400 transition-colors">Contact</a></li>
+                            <li><Link to="/legal-notice" className="text-gray-400 hover:text-ocean-400 transition-colors">Legal Notice</Link></li>
+                            <li><Link to="/privacy-policy" className="text-gray-400 hover:text-ocean-400 transition-colors">Privacy Policy</Link></li>
                         </ul>
                     </div>
 
@@ -58,8 +61,32 @@ const Footer = () => {
                     </div>
                 </div>
 
-                <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
-                    <p>&copy; {new Date().getFullYear()} Ocean Construction. All rights reserved.</p>
+                {/* Bottom Bar with Adriel's Systems Signature */}
+                <div className="border-t border-ocean-800/30 mt-12 pt-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <p className="text-sm text-ocean-200">
+                            © {new Date().getFullYear()} Ocean. All rights reserved.
+                        </p>
+                        <a
+                            href="https://adrielssystems.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-2 text-sm text-ocean-200 hover:text-white transition-colors"
+                        >
+                            <span>Created by</span>
+                            <span className="font-bold bg-gradient-to-r from-ocean-300 to-cyan-300 bg-clip-text text-transparent group-hover:from-white group-hover:to-ocean-100 transition-all">
+                                Adriel's Systems
+                            </span>
+                            <svg
+                                className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             </div>
         </footer>

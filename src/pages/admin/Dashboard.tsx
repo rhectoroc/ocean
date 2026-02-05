@@ -264,8 +264,27 @@ const Dashboard = () => {
                 {/* Sidebar Footer */}
                 <div className="p-4 border-t border-gray-200">
                     {sidebarOpen && (
-                        <div className="text-xs text-gray-500 text-center">
-                            Ocean CMS v1.0
+                        <div className="space-y-2">
+                            <div className="text-xs text-gray-500 text-center">
+                                Ocean CMS v1.0
+                            </div>
+                            <a
+                                href="https://adrielssystems.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-1 text-xs text-gray-400 hover:text-ocean-600 transition-colors group"
+                            >
+                                <span>by</span>
+                                <span className="font-semibold">Adriel's Systems</span>
+                                <svg
+                                    className="w-3 h-3 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-0.5 transition-all"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
                         </div>
                     )}
                 </div>
@@ -376,8 +395,8 @@ const Dashboard = () => {
                                                 type="button"
                                                 onClick={() => toggleTag(tag)}
                                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${formData.tags.includes(tag)
-                                                        ? 'bg-ocean-600 text-white shadow-sm'
-                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                    ? 'bg-ocean-600 text-white shadow-sm'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                     }`}
                                             >
                                                 {tag}
@@ -410,16 +429,16 @@ const Dashboard = () => {
                                                         src={img.url}
                                                         alt={`Upload ${index + 1}`}
                                                         className={`w-full h-32 object-cover rounded-lg border-2 transition-all ${index === formData.cover_image_index
-                                                                ? 'border-yellow-500 shadow-lg'
-                                                                : 'border-gray-200'
+                                                            ? 'border-yellow-500 shadow-lg'
+                                                            : 'border-gray-200'
                                                             }`}
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() => setCoverImage(index)}
                                                         className={`absolute top-2 left-2 p-1.5 rounded-full transition-all ${index === formData.cover_image_index
-                                                                ? 'bg-yellow-500 text-white shadow-md'
-                                                                : 'bg-white/90 text-gray-600 opacity-0 group-hover:opacity-100'
+                                                            ? 'bg-yellow-500 text-white shadow-md'
+                                                            : 'bg-white/90 text-gray-600 opacity-0 group-hover:opacity-100'
                                                             }`}
                                                         title="Set as cover image"
                                                     >
