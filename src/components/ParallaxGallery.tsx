@@ -1,27 +1,47 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { Draggable } from 'gsap/dist/Draggable';
+import { fetchActiveGalleryImages } from '../lib/galleryApi';
+import type { GalleryImage } from '../lib/galleryApi';
 import './ParallaxGallery.css';
 
 gsap.registerPlugin(Draggable);
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const ParallaxGallery = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const ringRef = useRef<HTMLDivElement>(null);
     const draggerRef = useRef<HTMLDivElement>(null);
     const xPosRef = useRef(0);
-
-    // Imágenes de proyectos de construcción
-    const images = [
-        '/construction.png',
-        '/renovation.png',
-        '/quality.png',
-        '/construction.png',
-        '/renovation.png',
-        '/quality.png'
-    ];
+    const [images, setImages] = useState<GalleryImage[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const getImages = async () => {
+            try {
+                const data = await fetchActiveGalleryImages();
+                // We need at least 6 images for the effect to look good, so we'll duplicate if needed
+                let galleryImages = data;
+                if (data.length > 0 && data.length < 6) {
+                    while (galleryImages.length < 6) {
+                        galleryImages = [...galleryImages, ...data];
+                    }
+                }
+                setImages(galleryImages);
+            } catch (error) {
+                console.error('Failed to load gallery images:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        getImages();
+    }, []);
+
+    useEffect(() => {
+        if (loading || images.length === 0) return;
+
         const container = containerRef.current;
         const ring = ringRef.current;
         const dragger = draggerRef.current;
@@ -48,7 +68,7 @@ const ParallaxGallery = () => {
                 rotateY: i * -60,
                 transformOrigin: '50% 50% 600px',
                 z: -600,
-                backgroundImage: `url(${images[i]})`,
+                // backgroundImage is set in the style attribute of the div
                 backgroundPosition: getBgPos(i),
                 backgroundSize: 'cover',
                 backfaceVisibility: 'hidden',
@@ -97,7 +117,15 @@ const ParallaxGallery = () => {
         return () => {
             Draggable.get(dragger)?.kill();
         };
-    }, []);
+    }, [loading, images]);
+
+    if (loading) {
+        return <div className="py-20 bg-black text-white text-center">Loading gallery...</div>;
+    }
+
+    if (images.length === 0) {
+        return null; // Or hide section if no images
+    }
 
     return (
         <section id="gallery" className="py-20 bg-black relative overflow-hidden">
@@ -110,8 +138,14 @@ const ParallaxGallery = () => {
 
                 <div className="parallax-container" ref={containerRef}>
                     <div id="parallax-ring" ref={ringRef}>
-                        {images.map((_, index) => (
-                            <div key={index} className="parallax-img"></div>
+                        {images.map((img, index) => (
+                            <div
+                                key={`${img.id}-${index}`}
+                                className="parallax-img"
+                                style={{
+                                    backgroundImage: `url(${API_URL}${img.image_url})`
+                                }}
+                            ></div>
                         ))}
                     </div>
                     <div className="parallax-vignette"></div>

@@ -138,8 +138,8 @@ const ProjectDetailModal = ({ project, onClose, onOpenChatbot }: ProjectDetailMo
                                         key={index}
                                         onClick={() => setCurrentImageIndex(index)}
                                         className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex
-                                                ? 'border-ocean-500 scale-105'
-                                                : 'border-transparent opacity-60 hover:opacity-100'
+                                            ? 'border-ocean-500 scale-105'
+                                            : 'border-transparent opacity-60 hover:opacity-100'
                                             }`}
                                     >
                                         <img
@@ -221,16 +221,7 @@ const ProjectDetailModal = ({ project, onClose, onOpenChatbot }: ProjectDetailMo
                         </div>
 
                         {/* Project Info */}
-                        <div className="mt-8 pt-6 border-t border-gray-200">
-                            <p className="text-sm text-gray-500">
-                                Project ID: #{project.id}
-                            </p>
-                            {project.created_at && (
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Created: {new Date(project.created_at).toLocaleDateString()}
-                                </p>
-                            )}
-                        </div>
+
                     </div>
                 </div>
             </div>

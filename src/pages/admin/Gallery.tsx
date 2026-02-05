@@ -175,8 +175,8 @@ const Gallery = () => {
                     onClick={handleSaveOrder}
                     disabled={!hasUnsavedChanges || loading}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors shadow-sm ${hasUnsavedChanges
-                            ? 'bg-ocean-600 text-white hover:bg-ocean-700 animate-pulse'
-                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        ? 'bg-ocean-600 text-white hover:bg-ocean-700 animate-pulse'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         }`}
                 >
                     Save Order
@@ -243,6 +243,12 @@ const Gallery = () => {
                                     src={`${API_URL}${image.image_url}`}
                                     alt={image.title || 'Gallery image'}
                                     className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        console.error(`Failed to load image: ${API_URL}${image.image_url}`);
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.parentElement?.classList.add('bg-red-100', 'flex', 'items-center', 'justify-center');
+                                        e.currentTarget.parentElement!.innerHTML += '<span class="text-red-500 text-xs text-center p-2">Image Load Failed</span>';
+                                    }}
                                 />
                                 {/* Order Badge */}
                                 <div className="absolute top-2 left-2 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
