@@ -42,3 +42,4 @@
 2026-02-04 [ENHANCEMENT] Improved FloatingChatbot error handling with detailed console logs, HTTP response verification, and specific error messages. Changed button background from gradient to transparent. Added support for multiple response formats (response, message, output fields).
 2026-02-04 [DEBUG] Enhanced FloatingChatbot logging to debug 'Error in workflow' from n8n webhook. Added detailed error response parsing.
 2026-02-04 [FIX] Fixed Navbar navigation links. Replaced conflicting Link/anchor structure with smooth scroll handlers for hash navigation. Updated both desktop and mobile menus.
+2026-02-04 [REFACTOR] Replaced video avatar with traditional MessageCircle icon in FloatingChatbot. Updated button and header styles for cleaner, more standard chatbot appearance.

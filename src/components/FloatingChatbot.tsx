@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Send } from 'lucide-react';
+import { X, Send, MessageCircle } from 'lucide-react';
 import './FloatingChatbot.css';
 
 interface Message {
@@ -128,17 +128,9 @@ const FloatingChatbot = () => {
             <button
                 className={`chatbot-button ${isOpen ? 'chatbot-button-hidden' : ''}`}
                 onClick={() => setIsOpen(true)}
-                aria-label="Abrir chat con Pushi"
+                aria-label="Abrir chat"
             >
-                <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="chatbot-avatar-video"
-                >
-                    <source src="/Avatar.mp4" type="video/mp4" />
-                </video>
+                <MessageCircle size={32} strokeWidth={2} />
                 <div className="chatbot-pulse"></div>
             </button>
 
@@ -148,15 +140,7 @@ const FloatingChatbot = () => {
                     <div className="chatbot-header">
                         <div className="chatbot-header-info">
                             <div className="chatbot-avatar-small">
-                                <video
-                                    autoPlay
-                                    loop
-                                    muted
-                                    playsInline
-                                    className="chatbot-avatar-video-small"
-                                >
-                                    <source src="/Avatar.mp4" type="video/mp4" />
-                                </video>
+                                <MessageCircle size={24} strokeWidth={2} />
                             </div>
                             <div>
                                 <h3 className="chatbot-title">Pushi</h3>
