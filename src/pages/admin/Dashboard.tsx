@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, LogOut, Eye, X, Edit, Star, FolderKanban, Menu as MenuIcon, User, ChevronLeft, Image as ImageIcon, Users } from 'lucide-react';
-
+import { Plus, Trash2, LogOut, Eye, X, Edit, Star, FolderKanban, Menu as MenuIcon, User, ChevronLeft, Image as ImageIcon, Users as UsersIcon } from 'lucide-react';
 
 import { API_URL, type Project } from '../../lib/api';
 import FileUploadZone from '../../components/admin/FileUploadZone';
 import ProjectPreview from '../../components/admin/ProjectPreview';
+import Gallery from './Gallery';
+import Users from './Users';
 
 interface MediaImage {
     url: string;
@@ -23,6 +24,7 @@ const Dashboard = () => {
     const [previewProject, setPreviewProject] = useState<any | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [userEmail, setUserEmail] = useState('');
+    const [currentSection, setCurrentSection] = useState<'projects' | 'gallery' | 'users'>('projects');
 
     // Form State
     const [formData, setFormData] = useState({
@@ -254,24 +256,27 @@ const Dashboard = () => {
                 {/* Sidebar Menu */}
                 <nav className="flex-1 p-4 space-y-2">
                     <button
-                        onClick={() => navigate('/admin/dashboard')}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-ocean-50 text-ocean-700 font-medium transition-colors"
+                        onClick={() => setCurrentSection('projects')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${currentSection === 'projects' ? 'bg-ocean-50 text-ocean-700' : 'hover:bg-gray-50 text-gray-700'
+                            }`}
                     >
                         <FolderKanban size={20} />
                         {sidebarOpen && <span>Projects</span>}
                     </button>
                     <button
-                        onClick={() => navigate('/admin/gallery')}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors"
+                        onClick={() => setCurrentSection('gallery')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${currentSection === 'gallery' ? 'bg-ocean-50 text-ocean-700' : 'hover:bg-gray-50 text-gray-700'
+                            }`}
                     >
                         <ImageIcon size={20} />
                         {sidebarOpen && <span>Gallery</span>}
                     </button>
                     <button
-                        onClick={() => navigate('/admin/users')}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors"
+                        onClick={() => setCurrentSection('users')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${currentSection === 'users' ? 'bg-ocean-50 text-ocean-700' : 'hover:bg-gray-50 text-gray-700'
+                            }`}
                     >
-                        <Users size={20} />
+                        <UsersIcon size={20} />
                         {sidebarOpen && <span>Users</span>}
                     </button>
                 </nav>
@@ -310,7 +315,11 @@ const Dashboard = () => {
                 {/* Top Bar */}
                 <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
                     <div className="flex items-center gap-4">
-                        <h1 className="text-xl font-bold text-gray-900">Projects Management</h1>
+                        <h1 className="text-xl font-bold text-gray-900">
+                            {currentSection === 'projects' && 'Projects Management'}
+                            {currentSection === 'gallery' && 'Gallery Management'}
+                            {currentSection === 'users' && 'Users Management'}
+                        </h1>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -334,246 +343,253 @@ const Dashboard = () => {
                 </header>
 
                 {/* Content Area */}
-                <main className="flex-1 overflow-y-auto p-6">
-                    {/* Actions */}
-                    <div className="mb-6 flex justify-between items-center">
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
-                            <p className="text-sm text-gray-500 mt-1">Manage your portfolio projects</p>
-                        </div>
-                        <button
-                            onClick={() => {
-                                if (showForm) {
-                                    resetForm();
-                                } else {
-                                    setShowForm(true);
-                                }
-                            }}
-                            className="bg-ocean-600 text-white px-6 py-3 rounded-lg hover:bg-ocean-700 flex items-center gap-2 shadow-sm transition-all hover:shadow-md"
-                        >
-                            <Plus size={20} />
-                            {showForm ? 'Cancel' : 'Add Project'}
-                        </button>
-                    </div>
-
-                    {/* Add/Edit Form */}
-                    {showForm && (
-                        <div className="bg-white p-6 rounded-xl shadow-sm mb-6 border border-gray-200">
-                            <h3 className="text-lg font-bold mb-6 text-gray-900">
-                                {editingProject ? 'Edit Project' : 'New Project'}
-                            </h3>
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                {/* Basic Info */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Project Title</label>
-                                        <input
-                                            type="text"
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-colors"
-                                            value={formData.title}
-                                            onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                        <select
-                                            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-colors"
-                                            value={formData.category}
-                                            onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                        >
-                                            <option value="Construction">Construction</option>
-                                            <option value="Remodeling">Remodeling</option>
-                                            <option value="Roofs">Roofs</option>
-                                            <option value="Commercial">Commercial</option>
-                                        </select>
-                                    </div>
-                                </div>
-
+                <main className="flex-1 overflow-y-auto">
+                    {currentSection === 'projects' && (
+                        <div className="p-6">
+                            {/* Actions */}
+                            <div className="mb-6 flex justify-between items-center">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                                    <textarea
-                                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-colors"
-                                        rows={3}
-                                        value={formData.description}
-                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    />
+                                    <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
+                                    <p className="text-sm text-gray-500 mt-1">Manage your portfolio projects</p>
                                 </div>
+                                <button
+                                    onClick={() => {
+                                        if (showForm) {
+                                            resetForm();
+                                        } else {
+                                            setShowForm(true);
+                                        }
+                                    }}
+                                    className="bg-ocean-600 text-white px-6 py-3 rounded-lg hover:bg-ocean-700 flex items-center gap-2 shadow-sm transition-all hover:shadow-md"
+                                >
+                                    <Plus size={20} />
+                                    {showForm ? 'Cancel' : 'Add Project'}
+                                </button>
+                            </div>
 
-                                {/* Tags */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {PREDEFINED_TAGS.map(tag => (
-                                            <button
-                                                key={tag}
-                                                type="button"
-                                                onClick={() => toggleTag(tag)}
-                                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${formData.tags.includes(tag)
-                                                    ? 'bg-ocean-600 text-white shadow-sm'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                    }`}
-                                            >
-                                                {tag}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
+                            {/* Add/Edit Form */}
+                            {showForm && (
+                                <div className="bg-white p-6 rounded-xl shadow-sm mb-6 border border-gray-200">
+                                    <h3 className="text-lg font-bold mb-6 text-gray-900">
+                                        {editingProject ? 'Edit Project' : 'New Project'}
+                                    </h3>
+                                    <form onSubmit={handleSubmit} className="space-y-6">
+                                        {/* Basic Info */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Project Title</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-colors"
+                                                    value={formData.title}
+                                                    onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                                <select
+                                                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-colors"
+                                                    value={formData.category}
+                                                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                                >
+                                                    <option value="Construction">Construction</option>
+                                                    <option value="Remodeling">Remodeling</option>
+                                                    <option value="Roofs">Roofs</option>
+                                                    <option value="Commercial">Commercial</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
-                                {/* Images Upload */}
-                                {formData.images.length < 10 && (
-                                    <FileUploadZone
-                                        label={`Images (${formData.images.length}/10)`}
-                                        accept="image/*"
-                                        maxFiles={10 - formData.images.length}
-                                        uploadEndpoint={`${API_URL}/upload/image`}
-                                        onFilesUploaded={handleImagesUploaded}
-                                    />
-                                )}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                            <textarea
+                                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-colors"
+                                                rows={3}
+                                                value={formData.description}
+                                                onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                            />
+                                        </div>
 
-                                {/* Image Grid */}
-                                {formData.images.length > 0 && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Images (Click star to set as cover)
-                                        </label>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                            {formData.images.map((img, index) => (
-                                                <div key={index} className="relative group">
-                                                    <img
-                                                        src={img.url}
-                                                        alt={`Upload ${index + 1}`}
-                                                        className={`w-full h-32 object-cover rounded-lg border-2 transition-all ${index === formData.cover_image_index
-                                                            ? 'border-yellow-500 shadow-lg'
-                                                            : 'border-gray-200'
-                                                            }`}
-                                                    />
+                                        {/* Tags */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                                            <div className="flex flex-wrap gap-2">
+                                                {PREDEFINED_TAGS.map(tag => (
                                                     <button
+                                                        key={tag}
                                                         type="button"
-                                                        onClick={() => setCoverImage(index)}
-                                                        className={`absolute top-2 left-2 p-1.5 rounded-full transition-all ${index === formData.cover_image_index
-                                                            ? 'bg-yellow-500 text-white shadow-md'
-                                                            : 'bg-white/90 text-gray-600 opacity-0 group-hover:opacity-100'
+                                                        onClick={() => toggleTag(tag)}
+                                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${formData.tags.includes(tag)
+                                                            ? 'bg-ocean-600 text-white shadow-sm'
+                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                             }`}
-                                                        title="Set as cover image"
                                                     >
-                                                        <Star size={16} fill={index === formData.cover_image_index ? 'currentColor' : 'none'} />
+                                                        {tag}
                                                     </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeImage(index)}
-                                                        className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                                                    >
-                                                        <X size={16} />
-                                                    </button>
-                                                    <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                                                        #{index + 1}
-                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Images Upload */}
+                                        {formData.images.length < 10 && (
+                                            <FileUploadZone
+                                                label={`Images (${formData.images.length}/10)`}
+                                                accept="image/*"
+                                                maxFiles={10 - formData.images.length}
+                                                uploadEndpoint={`${API_URL}/upload/image`}
+                                                onFilesUploaded={handleImagesUploaded}
+                                            />
+                                        )}
+
+                                        {/* Image Grid */}
+                                        {formData.images.length > 0 && (
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Images (Click star to set as cover)
+                                                </label>
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                    {formData.images.map((img, index) => (
+                                                        <div key={index} className="relative group">
+                                                            <img
+                                                                src={img.url}
+                                                                alt={`Upload ${index + 1}`}
+                                                                className={`w-full h-32 object-cover rounded-lg border-2 transition-all ${index === formData.cover_image_index
+                                                                    ? 'border-yellow-500 shadow-lg'
+                                                                    : 'border-gray-200'
+                                                                    }`}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setCoverImage(index)}
+                                                                className={`absolute top-2 left-2 p-1.5 rounded-full transition-all ${index === formData.cover_image_index
+                                                                    ? 'bg-yellow-500 text-white shadow-md'
+                                                                    : 'bg-white/90 text-gray-600 opacity-0 group-hover:opacity-100'
+                                                                    }`}
+                                                                title="Set as cover image"
+                                                            >
+                                                                <Star size={16} fill={index === formData.cover_image_index ? 'currentColor' : 'none'} />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeImage(index)}
+                                                                className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                            >
+                                                                <X size={16} />
+                                                            </button>
+                                                            <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                                                #{index + 1}
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
+                                            </div>
+                                        )}
 
-                                {/* Video Upload */}
-                                {!formData.video_url && (
-                                    <FileUploadZone
-                                        label="Video (Optional)"
-                                        accept="video/*"
-                                        maxFiles={1}
-                                        uploadEndpoint={`${API_URL}/upload/video`}
-                                        onFilesUploaded={handleVideoUploaded}
-                                    />
-                                )}
+                                        {/* Video Upload */}
+                                        {!formData.video_url && (
+                                            <FileUploadZone
+                                                label="Video (Optional)"
+                                                accept="video/*"
+                                                maxFiles={1}
+                                                uploadEndpoint={`${API_URL}/upload/video`}
+                                                onFilesUploaded={handleVideoUploaded}
+                                            />
+                                        )}
 
-                                {formData.video_url && (
-                                    <div className="relative">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Video</label>
-                                        <div className="relative group">
-                                            <video src={formData.video_url} controls className="w-full max-h-64 rounded-lg" />
+                                        {formData.video_url && (
+                                            <div className="relative">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Video</label>
+                                                <div className="relative group">
+                                                    <video src={formData.video_url} controls className="w-full max-h-64 rounded-lg" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData(prev => ({ ...prev, video_url: '' }))}
+                                                        className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                    >
+                                                        <X size={20} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Actions */}
+                                        <div className="flex justify-between pt-4 border-t border-gray-200">
                                             <button
                                                 type="button"
-                                                onClick={() => setFormData(prev => ({ ...prev, video_url: '' }))}
-                                                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                onClick={handlePreview}
+                                                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium flex items-center gap-2 transition-colors"
+                                                disabled={formData.images.length === 0}
                                             >
-                                                <X size={20} />
+                                                <Eye size={20} />
+                                                Preview
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium transition-colors shadow-sm hover:shadow-md"
+                                            >
+                                                {editingProject ? 'Update Project' : 'Save Project'}
                                             </button>
                                         </div>
+                                    </form>
+                                </div>
+                            )}
+
+                            {/* Projects Grid */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {projects.map((project) => (
+                                    <div key={project.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                                        <div className="aspect-video overflow-hidden">
+                                            <img src={project.image_url} alt={project.title} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="p-4">
+                                            <div className="flex items-start justify-between mb-2">
+                                                <div className="flex-1">
+                                                    <h4 className="text-lg font-bold text-gray-900 mb-1">{project.title}</h4>
+                                                    <p className="text-sm text-gray-500">{project.category}</p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleEdit(project)}
+                                                        className="p-2 text-ocean-600 hover:bg-ocean-50 rounded-lg transition-colors"
+                                                        title="Edit Project"
+                                                    >
+                                                        <Edit size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(project.id)}
+                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        title="Delete Project"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {project.tags && project.tags.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-2">
+                                                    {project.tags.map((tag: string, idx: number) => (
+                                                        <span key={idx} className="text-xs bg-ocean-50 text-ocean-700 px-2 py-1 rounded-md font-medium">
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                                {projects.length === 0 && !loading && (
+                                    <div className="col-span-full text-center py-12 text-gray-500">
+                                        <FolderKanban size={48} className="mx-auto mb-4 text-gray-300" />
+                                        <p className="text-lg font-medium">No projects found</p>
+                                        <p className="text-sm">Click "Add Project" to create your first project</p>
                                     </div>
                                 )}
-
-                                {/* Actions */}
-                                <div className="flex justify-between pt-4 border-t border-gray-200">
-                                    <button
-                                        type="button"
-                                        onClick={handlePreview}
-                                        className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium flex items-center gap-2 transition-colors"
-                                        disabled={formData.images.length === 0}
-                                    >
-                                        <Eye size={20} />
-                                        Preview
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium transition-colors shadow-sm hover:shadow-md"
-                                    >
-                                        {editingProject ? 'Update Project' : 'Save Project'}
-                                    </button>
-                                </div>
-                            </form>
+                            </div>
                         </div>
                     )}
 
-                    {/* Projects Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {projects.map((project) => (
-                            <div key={project.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                                <div className="aspect-video overflow-hidden">
-                                    <img src={project.image_url} alt={project.title} className="w-full h-full object-cover" />
-                                </div>
-                                <div className="p-4">
-                                    <div className="flex items-start justify-between mb-2">
-                                        <div className="flex-1">
-                                            <h4 className="text-lg font-bold text-gray-900 mb-1">{project.title}</h4>
-                                            <p className="text-sm text-gray-500">{project.category}</p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleEdit(project)}
-                                                className="p-2 text-ocean-600 hover:bg-ocean-50 rounded-lg transition-colors"
-                                                title="Edit Project"
-                                            >
-                                                <Edit size={18} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(project.id)}
-                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                title="Delete Project"
-                                            >
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {project.tags && project.tags.length > 0 && (
-                                        <div className="flex flex-wrap gap-1 mt-2">
-                                            {project.tags.map((tag: string, idx: number) => (
-                                                <span key={idx} className="text-xs bg-ocean-50 text-ocean-700 px-2 py-1 rounded-md font-medium">
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                        {projects.length === 0 && !loading && (
-                            <div className="col-span-full text-center py-12 text-gray-500">
-                                <FolderKanban size={48} className="mx-auto mb-4 text-gray-300" />
-                                <p className="text-lg font-medium">No projects found</p>
-                                <p className="text-sm">Click "Add Project" to create your first project</p>
-                            </div>
-                        )}
-                    </div>
+                    {currentSection === 'gallery' && <Gallery />}
+                    {currentSection === 'users' && <Users />}
                 </main>
             </div>
 

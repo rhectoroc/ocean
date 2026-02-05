@@ -8,7 +8,7 @@ const SALT_ROUNDS = 10;
 // Get all users
 router.get('/', async (req, res) => {
     try {
-        const result = await pool.query(
+        const result = await query(
             'SELECT id, email, full_name, role, is_active, last_login, created_at FROM users ORDER BY created_at DESC'
         );
         res.json(result.rows);
@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await pool.query(
+        const result = await query(
             'SELECT id, email, full_name, role, is_active, last_login, created_at FROM users WHERE id = $1',
             [id]
         );
@@ -65,7 +65,7 @@ router.post('/', async (req, res) => {
         }
 
         // Check if email already exists
-        const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+        const existingUser = await query('SELECT id FROM users WHERE email = $1', [email]);
         if (existingUser.rows.length > 0) {
             return res.status(409).json({ error: 'Email already exists' });
         }
@@ -74,7 +74,7 @@ router.post('/', async (req, res) => {
         const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
         // Insert user
-        const result = await pool.query(
+        const result = await query(
             'INSERT INTO users (email, password_hash, full_name, role) VALUES ($1, $2, $3, $4) RETURNING id, email, full_name, role, is_active, created_at',
             [email, password_hash, full_name, role]
         );
@@ -105,7 +105,7 @@ router.put('/:id', async (req, res) => {
             }
 
             // Check if email already exists for another user
-            const existingUser = await pool.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, id]);
+            const existingUser = await query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, id]);
             if (existingUser.rows.length > 0) {
                 return res.status(409).json({ error: 'Email already exists' });
             }
@@ -139,8 +139,8 @@ router.put('/:id', async (req, res) => {
         updates.push(`updated_at = CURRENT_TIMESTAMP`);
         values.push(id);
 
-        const query = `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, email, full_name, role, is_active, last_login, created_at, updated_at`;
-        const result = await pool.query(query, values);
+        const queryText = `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, email, full_name, role, is_active, last_login, created_at, updated_at`;
+        const result = await query(queryText, values);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'User not found' });
@@ -171,7 +171,7 @@ router.put('/:id/password', async (req, res) => {
         // Hash password
         const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
-        const result = await pool.query(
+        const result = await query(
             'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id',
             [password_hash, id]
         );
@@ -192,7 +192,7 @@ router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
+        const result = await query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'User not found' });
