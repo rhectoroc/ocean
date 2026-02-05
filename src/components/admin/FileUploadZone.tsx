@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, X, Loader } from 'lucide-react';
+import { Upload, Loader } from 'lucide-react';
 
 interface FileUploadZoneProps {
     onFilesUploaded: (urls: string[]) => void;
@@ -54,7 +54,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
         setUploading(true);
 
         try {
-            const uploadPromises = fileArray.map(async (file, index) => {
+            const uploadPromises = fileArray.map(async (file) => {
                 setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
                 const url = await uploadFile(file);
                 setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
@@ -90,8 +90,8 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all ${isDragging
-                        ? 'border-ocean-500 bg-ocean-50'
-                        : 'border-gray-300 hover:border-ocean-400'
+                    ? 'border-ocean-500 bg-ocean-50'
+                    : 'border-gray-300 hover:border-ocean-400'
                     } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
             >
                 <input

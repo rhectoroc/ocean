@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, LogOut, Eye, GripVertical, X } from 'lucide-react';
+import { Plus, Trash2, LogOut, Eye, X } from 'lucide-react';
 import { API_URL, type Project } from '../../lib/api';
 import FileUploadZone from '../../components/admin/FileUploadZone';
 import ProjectPreview from '../../components/admin/ProjectPreview';
@@ -115,16 +115,6 @@ const Dashboard = () => {
         setFormData(prev => ({
             ...prev,
             images: prev.images.filter((_, i) => i !== index).map((img, i) => ({ ...img, order: i }))
-        }));
-    };
-
-    const moveImage = (fromIndex: number, toIndex: number) => {
-        const newImages = [...formData.images];
-        const [moved] = newImages.splice(fromIndex, 1);
-        newImages.splice(toIndex, 0, moved);
-        setFormData(prev => ({
-            ...prev,
-            images: newImages.map((img, i) => ({ ...img, order: i }))
         }));
     };
 
