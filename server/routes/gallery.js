@@ -1,5 +1,5 @@
 import express from 'express';
-import pool from '../db.js';
+import { query } from '../db.js';
 import { uploadImage } from '../middleware/upload.js';
 import { processImage } from '../utils/imageProcessor.js';
 
@@ -9,7 +9,7 @@ const MAX_GALLERY_IMAGES = 10;
 // Get all gallery images (ordered)
 router.get('/', async (req, res) => {
     try {
-        const result = await pool.query(
+        const result = await query(
             'SELECT * FROM gallery ORDER BY display_order ASC, created_at DESC'
         );
         res.json(result.rows);
@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 // Get active gallery images only (for public site)
 router.get('/active', async (req, res) => {
     try {
-        const result = await pool.query(
+        const result = await query(
             'SELECT id, image_url, thumbnail_url, title, description, display_order FROM gallery WHERE is_active = true ORDER BY display_order ASC LIMIT $1',
             [MAX_GALLERY_IMAGES]
         );
@@ -39,7 +39,7 @@ router.post('/', uploadImage.single('file'), async (req, res) => {
         const { title, description, display_order = 0 } = req.body;
 
         // Check if we've reached the limit
-        const countResult = await pool.query('SELECT COUNT(*) FROM gallery');
+        const countResult = await query('SELECT COUNT(*) FROM gallery');
         const currentCount = parseInt(countResult.rows[0].count);
 
         if (currentCount >= MAX_GALLERY_IMAGES) {
@@ -58,7 +58,7 @@ router.post('/', uploadImage.single('file'), async (req, res) => {
         const image_url = `/uploads/${processedPath.split('/').pop().split('\\').pop()}`;
         const thumbnail_url = `/uploads/${thumbnailPath.split('/').pop().split('\\').pop()}`;
 
-        const result = await pool.query(
+        const result = await query(
             'INSERT INTO gallery (image_url, thumbnail_url, title, description, display_order) VALUES ($1, $2, $3, $4, $5) RETURNING *',
             [image_url, thumbnail_url, title, description, display_order]
         );
@@ -120,8 +120,8 @@ router.put('/:id', uploadImage.single('file'), async (req, res) => {
         updates.push(`updated_at = CURRENT_TIMESTAMP`);
         values.push(id);
 
-        const query = `UPDATE gallery SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`;
-        const result = await pool.query(query, values);
+        const queryText = `UPDATE gallery SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`;
+        const result = await query(queryText, values);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Gallery image not found' });
@@ -143,27 +143,16 @@ router.put('/reorder/batch', async (req, res) => {
             return res.status(400).json({ error: 'Items array is required' });
         }
 
-        const client = await pool.connect();
-        try {
-            await client.query('BEGIN');
-
-            for (const item of items) {
-                await client.query(
-                    'UPDATE gallery SET display_order = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-                    [item.display_order, item.id]
-                );
-            }
-
-            await client.query('COMMIT');
-
-            const result = await client.query('SELECT * FROM gallery ORDER BY display_order ASC');
-            res.json(result.rows);
-        } catch (error) {
-            await client.query('ROLLBACK');
-            throw error;
-        } finally {
-            client.release();
+        // Update each item individually (simpler without pool.connect)
+        for (const item of items) {
+            await query(
+                'UPDATE gallery SET display_order = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+                [item.display_order, item.id]
+            );
         }
+
+        const result = await query('SELECT * FROM gallery ORDER BY display_order ASC');
+        res.json(result.rows);
     } catch (error) {
         console.error('Error reordering gallery images:', error);
         res.status(500).json({ error: 'Failed to reorder gallery images' });
@@ -175,7 +164,7 @@ router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await pool.query('DELETE FROM gallery WHERE id = $1 RETURNING *', [id]);
+        const result = await query('DELETE FROM gallery WHERE id = $1 RETURNING *', [id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Gallery image not found' });
