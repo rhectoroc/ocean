@@ -28,32 +28,47 @@ const Gallery = () => {
         }
     };
 
-    const processFile = async (file: File) => {
-        if (images.length >= MAX_IMAGES) {
+    const processFiles = async (files: FileList | File[]) => {
+        const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+        if (imageFiles.length === 0) return;
+
+        const remainingSlots = MAX_IMAGES - images.length;
+        if (remainingSlots <= 0) {
             alert(`Maximum of ${MAX_IMAGES} images allowed`);
             return;
         }
 
+        const filesToUpload = imageFiles.slice(0, remainingSlots);
+        if (imageFiles.length > remainingSlots) {
+            alert(`Only ${remainingSlots} slots remaining. Uploading first ${remainingSlots} images.`);
+        }
+
         setUploading(true);
         try {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('display_order', images.length.toString());
+            let currentOrder = images.length;
 
-            await createGalleryImage(formData);
+            for (const file of filesToUpload) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('display_order', currentOrder.toString());
+
+                await createGalleryImage(formData);
+                currentOrder++;
+            }
+
             await loadImages();
         } catch (error: any) {
-            console.error('Error uploading image:', error);
-            alert(error.message || 'Failed to upload image');
+            console.error('Error uploading images:', error);
+            alert(error.message || 'Failed to upload images');
         } finally {
             setUploading(false);
         }
     };
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        await processFile(file);
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        await processFiles(files);
         e.target.value = '';
     };
 
@@ -66,9 +81,9 @@ const Gallery = () => {
         e.preventDefault();
         e.stopPropagation();
 
-        const file = e.dataTransfer.files?.[0];
-        if (file && file.type.startsWith('image/')) {
-            await processFile(file);
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            await processFiles(files);
         }
     };
 
@@ -175,6 +190,7 @@ const Gallery = () => {
                         type="file"
                         className="hidden"
                         accept="image/*"
+                        multiple
                         onChange={handleUpload}
                         disabled={uploading || images.length >= MAX_IMAGES}
                     />
