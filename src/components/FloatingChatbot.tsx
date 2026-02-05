@@ -115,68 +115,62 @@ const FloatingChatbot = () => {
         sendMessage(inputValue);
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage(inputValue);
-        }
-    };
-
     return (
-        <>
+        <div className="chatbot-container">
             {/* Floating Button */}
-            <button
-                className={`chatbot-button ${isOpen ? 'chatbot-button-hidden' : ''}`}
-                onClick={() => setIsOpen(true)}
-                aria-label="Abrir chat"
-            >
-                <MessageCircle size={32} strokeWidth={2} />
-                <div className="chatbot-pulse"></div>
-            </button>
+            {!isOpen && (
+                <button
+                    onClick={() => setIsOpen(true)}
+                    data-chatbot-button
+                    className="chatbot-button"
+                    aria-label="Open chat"
+                >
+                    <MessageCircle size={28} />
+                </button>
+            )}
 
-            {/* Chat Modal */}
+            {/* Chat Window */}
             {isOpen && (
-                <div className="chatbot-modal">
+                <div className="chatbot-window">
+                    {/* Header */}
                     <div className="chatbot-header">
-                        <div className="chatbot-header-info">
-                            <div className="chatbot-avatar-small">
-                                <MessageCircle size={24} strokeWidth={2} />
+                        <div className="flex items-center gap-3">
+                            <div className="chatbot-avatar">
+                                <MessageCircle size={24} />
                             </div>
                             <div>
-                                <h3 className="chatbot-title">Pushi</h3>
-                                <p className="chatbot-subtitle">Asistente Virtual</p>
+                                <h3 className="font-bold text-white">Pushi</h3>
+                                <p className="text-xs text-ocean-100">Ocean Assistant</p>
                             </div>
                         </div>
                         <button
-                            className="chatbot-close"
                             onClick={() => setIsOpen(false)}
-                            aria-label="Cerrar chat"
+                            className="text-white hover:bg-ocean-700 p-1 rounded transition-colors"
+                            aria-label="Close chat"
                         >
-                            <X size={20} />
+                            <X size={24} />
                         </button>
                     </div>
 
+                    {/* Messages */}
                     <div className="chatbot-messages">
                         {messages.map((message) => (
                             <div
                                 key={message.id}
-                                className={`chatbot-message ${message.sender === 'user' ? 'chatbot-message-user' : 'chatbot-message-bot'}`}
+                                className={`message ${message.sender === 'user' ? 'message-user' : 'message-bot'}`}
                             >
-                                <div className="chatbot-message-content">
+                                <div className="message-bubble">
                                     {message.text}
                                 </div>
-                                <div className="chatbot-message-time">
-                                    {message.timestamp.toLocaleTimeString('es-ES', {
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </div>
+                                <span className="message-time">
+                                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
                             </div>
                         ))}
                         {isLoading && (
-                            <div className="chatbot-message chatbot-message-bot">
-                                <div className="chatbot-message-content">
-                                    <div className="chatbot-typing">
+                            <div className="message message-bot">
+                                <div className="message-bubble">
+                                    <div className="typing-indicator">
                                         <span></span>
                                         <span></span>
                                         <span></span>
@@ -187,28 +181,28 @@ const FloatingChatbot = () => {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    <form className="chatbot-input-container" onSubmit={handleSubmit}>
+                    {/* Input */}
+                    <form onSubmit={handleSubmit} className="chatbot-input">
                         <input
                             type="text"
-                            className="chatbot-input"
-                            placeholder="Escribe tu mensaje..."
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
-                            onKeyPress={handleKeyPress}
+                            placeholder="Escribe tu mensaje..."
                             disabled={isLoading}
+                            className="flex-1 px-4 py-3 border-0 focus:outline-none bg-transparent"
                         />
                         <button
                             type="submit"
-                            className="chatbot-send"
-                            disabled={!inputValue.trim() || isLoading}
-                            aria-label="Enviar mensaje"
+                            disabled={isLoading || !inputValue.trim()}
+                            className="chatbot-send-button"
+                            aria-label="Send message"
                         >
                             <Send size={20} />
                         </button>
                     </form>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 
