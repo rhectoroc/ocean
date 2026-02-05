@@ -1,54 +1,8 @@
-2026-01-26 [SETUP] Initialized Vite + React + Tailwind. Created folder structure and basic Router.
-2026-01-26 [FRONTEND] Created public frontend components: Navbar (Mobile First), Hero (Static), About, Contact, Footer. Assembled Home page.
-2026-01-26 [BACKEND] Aligned DB schema in `db/init.sql` with Strict User Requirements (Users, Services, Projects only).
-2026-01-26 [BACKEND] Initialized Node/Express server in `server/` with `pg` for PostgreSQL connection. Endpoints: /api/services, /api/projects.
-2026-01-26 [DEPLOY] Configured `Dockerfile` for multi-stage build (Vite Frontend + Express Backend) and updated `server/index.js` to serve static files. Set DB connection in `server/.env`.
-2026-01-26 [BACKEND] Implemented JWT Auth + Protected Routes in Node server.
-2026-01-26 [CMS] Created Admin Panel: Login Page and Dashboard for Project management (Create/Delete) with Image Preview.
-2026-01-26 [FIX] Removed unused `React` imports from all components to satisfy linting rules for production build.
-2026-01-26 [FIX] Downgraded Tailwind CSS to v3.4 to resolve configuration mismatch with PostCSS, ensuring successful production build.
-2026-01-26 [ASSETS] Integrated local assets: Replaced Hero background with `hero.mp4`, updated Navbar with `logo.png`, and set `favicon.png`.
-2026-01-26 [CONTENT] Updated Hero slogan to "An OCEAN of ideas for your home!" and Browser Tab title. Created `db/create_admin.sql`.
-2026-01-26 [CONTENT] Updated Hero slogan to "An OCEAN of ideas for your home!" and Browser Tab title. Created `db/create_admin.sql`.
-2026-01-26 [PULISH] Enhanced UI: Applied `framer-motion` animations (Titles, Reveals), updated Footer (Logo + Map), and Navbar (Larger Logo + Sign In Icon).
-2026-01-26 [POLISH] Replaced Framer Motion with GSAP for Hero Title animation. Implemented transparent-to-white Navbar scroll effect. Lightened Hero video overlay. Added infinite floating animation to Hero title.
-2026-01-26 [POLISH] Replaced Framer Motion with GSAP for Hero Title animation. Implemented transparent-to-white Navbar scroll effect. Lightened Hero video overlay. Added infinite floating animation to Hero title.
-2026-01-26 [PULISH] Redesigned Services Section: Converted to static, high-performance GSAP animated layout. Added "Process Flow" and "Parallax Service Grid" with glassmorphism effects, matching original design intent but modernized.
-2026-01-26 [FIX] Resolved Services Grid visibility issue by enforcing `gsap.fromTo` animation state (ensuring opacity: 1) and adding a dark background fallback if the image loads slowly.
-2026-01-26 [PULISH] Removed filters from Navbar Logo to fix "white box" issue. Transformed "About Us" images into an interactive "Stacked Polaroid Video" gallery using `hero.mp4` placeholders.
-2026-01-26 [ASSETS] Updated application logo to `logofondo.png` in Navbar and Footer, removing inversion filters to display the original full-color image.
-2026-01-26 [PULISH] Enhanced "About Us" with an interactive 3-card Polaroid stack. Implemented "Click-to-Expand" functionality using `framer-motion` layout animations, allowing users to view full-size videos with controls.
-2026-01-26 [ASSETS] Integrated multi-video background for Hero section. Configured a seamless playlist loop cycling through `hero.mp4`, `hero2.mp4`, and `hero3.mp4`.
-2026-01-26 [PULISH] Optimized Hero video player for smoother transitions. Implemented "Double Buffering" strategy (simultaneous rendering with opacity toggles and `preload="auto"`) to eliminate black screens and stuttering between clips.
-2026-01-26 [POLISH] Replaced "Infinite Floating" animation on Hero Title with a premium "Parallax Smooth Scroll" effect. Title and subtitle now scrub gently along with the scroll for a deeper, more modern feel.
-2026-01-26 [FIX] Resolved CORS errors by configuring Vite Proxy (`/api` -> port 3001) and updating backend CORS policy to allow development origins. Updated frontend to use relative API paths for better portability between local and production environments.
-2026-01-26 [PERF] PageSpeed Optimizations: Implemented video posters to improve LCP, optimized Unsplash image parameters (WebP/Auto-size), and adjusted video preloading strategies (`metadata` vs `auto`) to reduce initial main thread load. Updated site metadata for better SEO.
-2026-01-26 [SECURITY] Migrated manual JWT authentication to the `Auth.js` (@auth/express) library. Implemented secure HTTP-Only session cookies and CSRF protection. Removed hardcoded credentials and moved everything to a secure Credentials Provider flow.
-2026-01-26 [BUILD] Production build successful. Ready for deployment.
-2026-02-04 [DIAGNOSIS] Investigated CredentialsSignin error in production. Created diagnostic scripts: `server/diagnose.js` for runtime checks, `db/diagnose_production.sql` for DB verification, `db/fix_production.sql` for table creation, and `GUIA_SOLUCION_AUTH.md` with step-by-step solution guide.
-2026-02-04 [FIX] Resolved CredentialsSignin error in production. Root cause: password hash mismatch in database. Solution: Added `FORCE_ADMIN_RESET=true` environment variable in Easypanel and restarted container. Admin login now functional.
-2026-02-04 [FEATURE] Implemented interactive service modals in ServicesSection. Added detailed content (fullDescription, benefits, process) for all 6 services (Constructions, Renovations, Repairs, Waterproofing, Plumbing, Maintenance). Modal features: glassmorphism design, mobile-first responsive, ESC key support, body scroll prevention, and CTA button. Build successful.
-2026-02-04 [FIX] Removed Unsplash background image from ServicesSection to prevent visual changes on page refresh. Replaced with CSS gradient (gray-900 to ocean-900) with radial gradient effects. Eliminates external image dependencies.
-2026-02-04 [FEATURE] Replaced polaroid gallery in About section with Card Transition Shift layout. Created `CardGallery.css` with hover transition effects. Generated 3 professional images (construction.png, renovation.png, quality.png). Removed framer-motion dependency from About component. Build successful.
-2026-02-04 [FEATURE] Implemented 3D Parallax Image Ring gallery between ProjectsSection and Contact. Created `ParallaxGallery.tsx` with GSAP Draggable for interactive 360° rotation. Users can drag to explore 10 images in 3D space with parallax background effects. Responsive design for mobile/tablet/desktop. Build successful.
-2026-02-04 [FIX] Fixed 3D Parallax Gallery CSS and structure. Corrected dragger positioning to cover entire container area, reorganized HTML structure with vignette and dragger inside parallax-container, added min-height and vertical centering to section. Gallery now fully functional with drag interaction.
-2026-02-04 [REFACTOR] Completely reimplemented 3D Parallax Gallery following original example technique. Fixed transformOrigin (50% 50% 500px), implemented parallax background calculation with gsap.utils.wrap, set dragger to opacity:0, adjusted container to 512px with perspective 2000px. Gallery now displays correctly with full 3D ring effect and parallax backgrounds.
-2026-02-04 [CRITICAL FIX] Removed global CSS rule `div { position: absolute; }` from ParallaxGallery.css that was breaking entire page layout. Applied position: absolute only to specific gallery elements (#parallax-dragger, #parallax-ring, .parallax-img, .parallax-vignette). Page layout restored.
-2026-02-04 [FIX] Corrected 3D Parallax Gallery to match original example. Fixed parallax calculation from 500px to 400px in getBgPos function. Adjusted CSS container positioning to use left/top 50% with transform translate(-50%, -50%). Gallery now displays correctly with proper 3D ring effect.
-2026-02-04 [CRITICAL FIX] Fixed 3D ring rotation not working. Changed GSAP selector from global class '.parallax-img' to querySelectorAll on ring element. Added backgroundSize: 'cover' to GSAP set. Images now properly rotate in 3D ring formation instead of stacking vertically.
-2026-02-04 [FIX] Fixed 3D gallery centering. Removed left/top/transform from .parallax-container CSS that was causing offset positioning. Gallery now properly centered horizontally with margin: 0 auto. Added force3D: true and manual transformStyle application for reliable 3D rendering.
-2026-02-04 [ENHANCEMENT] Optimized 3D gallery visibility. Reduced images from 10 to 6 (rotation angle from 36° to 60°) and strengthened vignette gradient (from 12%-88% to 5%-95%) to better hide lateral images. Removed descriptive text. Increased ring radius from 500px to 600px for wider images.
-2026-02-04 [FEATURE] Implemented floating chatbot "Pushi" with n8n webhook integration. Created FloatingChatbot.tsx with video Avatar.mp4 as floating button in bottom-right corner. Features: responsive chat modal, message history, typing indicator, timestamps, error handling, and connection to https://ocean-n8n.1m85g5.easypanel.host/webhook/ebbaff41-f04a-4207-8b4b-17789300b26b/chat. Added to App.tsx for global availability.
-2026-02-04 [ENHANCEMENT] Improved FloatingChatbot error handling with detailed console logs, HTTP response verification, and specific error messages. Changed button background from gradient to transparent. Added support for multiple response formats (response, message, output fields).
-2026-02-04 [DEBUG] Enhanced FloatingChatbot logging to debug 'Error in workflow' from n8n webhook. Added detailed error response parsing.
-2026-02-04 [FIX] Fixed Navbar navigation links. Replaced conflicting Link/anchor structure with smooth scroll handlers for hash navigation. Updated both desktop and mobile menus.
-2026-02-04 [REFACTOR] Replaced video avatar with traditional MessageCircle icon in FloatingChatbot. Updated button and header styles for cleaner, more standard chatbot appearance.
-2026-02-04 [FEATURE] Implemented complete project CRUD upgrade: drag-and-drop upload for 10 images + 1 video, image processing (resize/convert to JPG), web preview modal, and Easypanel volume integration (/upload).
+# DEV LOG
 
-2026-02-04 [BUGFIX] Fixed image upload error: Sharp cannot use same file for input/output. Implemented temp file strategy for .jpg processing.
-
-2026-02-04 [FEATURE] Added project edit features: edit mode, cover image selection, tags system, and automatic carousel in web cards.
-
-2026-02-04 [UI] Redesigned admin dashboard with modern SaaS interface: collapsible sidebar, top bar with logo and user profile, card-based project grid.
-
-2026-02-04 [UI] Redesigned login page with animated ocean theme: gradient background, wave animations, glassmorphism, floating bubbles, smooth transitions.
+## 2026-02-04
+- Integration: Sidebar & Dashboard Layout for Users/Gallery.
+- Fix: Protected Routes & AuthMiddleware (500 Error fixed).
+- Feat: Gallery Multiple Upload & Drag-and-Drop.
+- Fix: Gallery Image Paths (using process.cwd() for production compatibility).
+- UX: Added Manual "Save Order" button in Gallery.

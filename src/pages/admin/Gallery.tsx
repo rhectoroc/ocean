@@ -10,7 +10,9 @@ const Gallery = () => {
     const [images, setImages] = useState<GalleryImage[]>([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
+
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
     useEffect(() => {
         loadImages();
@@ -128,9 +130,14 @@ const Gallery = () => {
         setDraggedIndex(index);
     };
 
-    const handleDragEnd = async () => {
+    const handleDragEnd = () => {
         if (draggedIndex === null) return;
+        setDraggedIndex(null);
+        setHasUnsavedChanges(true);
+    };
 
+    const handleSaveOrder = async () => {
+        setLoading(true);
         try {
             const items = images.map((img, idx) => ({
                 id: img.id,
@@ -138,12 +145,14 @@ const Gallery = () => {
             }));
             await reorderGalleryImages(items);
             await loadImages();
+            setHasUnsavedChanges(false);
+            alert('Order saved successfully');
         } catch (error) {
             console.error('Error reordering images:', error);
             alert('Failed to reorder images');
             await loadImages();
         } finally {
-            setDraggedIndex(null);
+            setLoading(false);
         }
     };
 
@@ -157,9 +166,21 @@ const Gallery = () => {
 
     return (
         <div className="p-6">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Gallery Management</h1>
-                <p className="text-gray-600">Manage images for the "Our Work Gallery" section (max {MAX_IMAGES} images)</p>
+            <div className="mb-6 flex justify-between items-end">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Gallery Management</h1>
+                    <p className="text-gray-600">Manage images for the "Our Work Gallery" section (max {MAX_IMAGES} images)</p>
+                </div>
+                <button
+                    onClick={handleSaveOrder}
+                    disabled={!hasUnsavedChanges || loading}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors shadow-sm ${hasUnsavedChanges
+                            ? 'bg-ocean-600 text-white hover:bg-ocean-700 animate-pulse'
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        }`}
+                >
+                    Save Order
+                </button>
             </div>
 
             {/* Upload Section */}
