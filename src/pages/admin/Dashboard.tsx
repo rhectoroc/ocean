@@ -1,26 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, LogOut, Image as ImageIcon } from 'lucide-react';
-import { API_URL, type Project } from '../../lib/api'; // Reuse types and central API config
+import { Plus, Trash2, LogOut, Eye, GripVertical, X } from 'lucide-react';
+import { API_URL, type Project } from '../../lib/api';
+import FileUploadZone from '../../components/admin/FileUploadZone';
+import ProjectPreview from '../../components/admin/ProjectPreview';
+
+interface MediaImage {
+    url: string;
+    order: number;
+}
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
+    const [previewProject, setPreviewProject] = useState<any | null>(null);
 
     // Form State
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        image_url: '',
-        category: 'Construction'
+        category: 'Construction',
+        images: [] as MediaImage[],
+        video_url: ''
     });
 
     useEffect(() => {
         const checkSession = async () => {
             try {
-                // Verificamos la sesión con Auth.js
                 const res = await fetch(`${API_URL}/auth/session`);
                 const session = await res.json();
 
@@ -29,7 +37,6 @@ const Dashboard = () => {
                     return;
                 }
 
-                // Si hay sesión, cargamos los proyectos
                 fetchProjects();
             } catch (err) {
                 console.error('Session check failed', err);
@@ -53,11 +60,9 @@ const Dashboard = () => {
 
     const handleLogout = async () => {
         try {
-            // 1. Obtener CSRF para cerrar sesión
             const csrfRes = await fetch(`${API_URL}/auth/csrf`);
             const { csrfToken } = await csrfRes.json();
 
-            // 2. Ejecutar SignOut de Auth.js
             await fetch(`${API_URL}/auth/signout`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -75,7 +80,6 @@ const Dashboard = () => {
         if (!confirm('Are you sure you want to delete this project?')) return;
 
         try {
-            // Ya no enviamos Authorization Header, Auth.js usa Cookies seguras
             const res = await fetch(`${API_URL}/projects/${id}`, {
                 method: 'DELETE'
             });
@@ -90,8 +94,47 @@ const Dashboard = () => {
         }
     };
 
+    const handleImagesUploaded = (urls: string[]) => {
+        const newImages = urls.map((url, index) => ({
+            url,
+            order: formData.images.length + index
+        }));
+        setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, ...newImages].slice(0, 10) // Max 10 images
+        }));
+    };
+
+    const handleVideoUploaded = (urls: string[]) => {
+        if (urls.length > 0) {
+            setFormData(prev => ({ ...prev, video_url: urls[0] }));
+        }
+    };
+
+    const removeImage = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index).map((img, i) => ({ ...img, order: i }))
+        }));
+    };
+
+    const moveImage = (fromIndex: number, toIndex: number) => {
+        const newImages = [...formData.images];
+        const [moved] = newImages.splice(fromIndex, 1);
+        newImages.splice(toIndex, 0, moved);
+        setFormData(prev => ({
+            ...prev,
+            images: newImages.map((img, i) => ({ ...img, order: i }))
+        }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (formData.images.length === 0) {
+            alert('Please upload at least one image');
+            return;
+        }
 
         try {
             const res = await fetch(`${API_URL}/projects`, {
@@ -106,13 +149,20 @@ const Dashboard = () => {
                 const newProject = await res.json();
                 setProjects([newProject, ...projects]);
                 setShowForm(false);
-                setFormData({ title: '', description: '', image_url: '', category: 'Construction' });
+                setFormData({ title: '', description: '', category: 'Construction', images: [], video_url: '' });
             } else {
                 alert('Error al guardar el proyecto. Verifica tu sesión.');
             }
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const handlePreview = () => {
+        setPreviewProject({
+            ...formData,
+            id: 0
+        });
     };
 
     if (loading) return <div className="min-h-screen flex items-center justify-center">Cargando dashboard...</div>;
@@ -147,8 +197,9 @@ const Dashboard = () => {
                 {showForm && (
                     <div className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
                         <h3 className="text-lg font-bold mb-4">New Project</h3>
-                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Basic Info */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Project Title</label>
                                     <input
@@ -172,55 +223,94 @@ const Dashboard = () => {
                                         <option value="Commercial">Commercial</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Description</label>
-                                    <textarea
-                                        className="mt-1 w-full border border-gray-300 rounded-md p-2"
-                                        rows={3}
-                                        value={formData.description}
-                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    />
-                                </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Image URL</label>
-                                    <input
-                                        type="url"
-                                        required
-                                        placeholder="https://..."
-                                        className="mt-1 w-full border border-gray-300 rounded-md p-2 min-h-[44px]"
-                                        value={formData.image_url}
-                                        onChange={e => setFormData({ ...formData, image_url: e.target.value })}
-                                    />
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Description</label>
+                                <textarea
+                                    className="mt-1 w-full border border-gray-300 rounded-md p-2"
+                                    rows={3}
+                                    value={formData.description}
+                                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                />
+                            </div>
+
+                            {/* Images Upload */}
+                            <FileUploadZone
+                                label={`Images (${formData.images.length}/10)`}
+                                accept="image/*"
+                                maxFiles={10 - formData.images.length}
+                                uploadEndpoint={`${API_URL}/upload/image`}
+                                onFilesUploaded={handleImagesUploaded}
+                            />
+
+                            {/* Image Grid */}
+                            {formData.images.length > 0 && (
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {formData.images.map((img, index) => (
+                                        <div key={index} className="relative group">
+                                            <img
+                                                src={img.url}
+                                                alt={`Upload ${index + 1}`}
+                                                className="w-full h-32 object-cover rounded-lg border-2 border-gray-200"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                            <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                                #{index + 1}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                                {/* Image Preview */}
-                                <div className="mt-2 w-full h-48 bg-gray-100 rounded-md border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden relative">
-                                    {formData.image_url ? (
-                                        <img
-                                            src={formData.image_url}
-                                            alt="Preview"
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).style.display = 'none';
-                                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                            }}
-                                            onLoad={(e) => {
-                                                (e.target as HTMLImageElement).style.display = 'block';
-                                                (e.target as HTMLImageElement).nextElementSibling?.classList.add('hidden');
-                                            }}
-                                        />
-                                    ) : null}
-                                    <div className={`flex flex-col items-center text-gray-400 ${formData.image_url ? 'hidden' : ''}`}>
-                                        <ImageIcon size={32} />
-                                        <span className="text-sm">Image Preview</span>
+                            )}
+
+                            {/* Video Upload */}
+                            {!formData.video_url && (
+                                <FileUploadZone
+                                    label="Video (Optional)"
+                                    accept="video/*"
+                                    maxFiles={1}
+                                    uploadEndpoint={`${API_URL}/upload/video`}
+                                    onFilesUploaded={handleVideoUploaded}
+                                />
+                            )}
+
+                            {formData.video_url && (
+                                <div className="relative">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Video</label>
+                                    <div className="relative group">
+                                        <video src={formData.video_url} controls className="w-full max-h-64 rounded-lg" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, video_url: '' }))}
+                                            className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <X size={20} />
+                                        </button>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
-                            <div className="md:col-span-2 flex justify-end">
-                                <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 min-h-[44px] font-bold">
+                            {/* Actions */}
+                            <div className="flex justify-between">
+                                <button
+                                    type="button"
+                                    onClick={handlePreview}
+                                    className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 min-h-[44px] font-bold flex items-center gap-2"
+                                    disabled={formData.images.length === 0}
+                                >
+                                    <Eye size={20} />
+                                    Preview
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 min-h-[44px] font-bold"
+                                >
                                     Save Project
                                 </button>
                             </div>
@@ -255,6 +345,14 @@ const Dashboard = () => {
                     </ul>
                 </div>
             </main>
+
+            {/* Preview Modal */}
+            {previewProject && (
+                <ProjectPreview
+                    project={previewProject}
+                    onClose={() => setPreviewProject(null)}
+                />
+            )}
         </div>
     );
 };

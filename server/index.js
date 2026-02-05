@@ -6,6 +6,8 @@ import { authConfig } from "./auth.config.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
+import { uploadImage, uploadVideo } from './middleware/upload.js';
+import { processImage, deleteImage, deleteVideo } from './utils/imageProcessor.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -65,13 +67,55 @@ const authenticatedUser = async (req, res, next) => {
 
 // --- PROTECTED ROUTES (CRUD) ---
 
+// Upload Image
+app.post('/api/upload/image', authenticatedUser, uploadImage.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        // Process image (resize, convert to JPG, generate thumbnail)
+        const { processedPath, thumbnailPath } = await processImage(req.file.path);
+
+        res.json({
+            url: processedPath,
+            thumbnail: thumbnailPath,
+            originalName: req.file.originalname
+        });
+    } catch (err) {
+        console.error('Image upload error:', err);
+        res.status(500).json({ error: 'Failed to upload image' });
+    }
+});
+
+// Upload Video
+app.post('/api/upload/video', authenticatedUser, uploadVideo.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const videoUrl = `/upload/${req.file.filename}`;
+        res.json({
+            url: videoUrl,
+            originalName: req.file.originalname
+        });
+    } catch (err) {
+        console.error('Video upload error:', err);
+        res.status(500).json({ error: 'Failed to upload video' });
+    }
+});
+
 // Create Project
 app.post('/api/projects', authenticatedUser, async (req, res) => {
-    const { title, description, image_url, category } = req.body;
+    const { title, description, images, video_url, category } = req.body;
     try {
+        // For backward compatibility, set image_url to first image
+        const image_url = images && images.length > 0 ? images[0].url : null;
+
         const result = await query(
-            'INSERT INTO projects (title, description, image_url, category) VALUES ($1, $2, $3, $4) RETURNING *',
-            [title, description, image_url, category]
+            'INSERT INTO projects (title, description, image_url, images, video_url, category) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [title, description, image_url, JSON.stringify(images || []), video_url, category]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -80,10 +124,44 @@ app.post('/api/projects', authenticatedUser, async (req, res) => {
     }
 });
 
+// Update Project
+app.put('/api/projects/:id', authenticatedUser, async (req, res) => {
+    const { id } = req.params;
+    const { title, description, images, video_url, category } = req.body;
+    try {
+        const image_url = images && images.length > 0 ? images[0].url : null;
+
+        const result = await query(
+            'UPDATE projects SET title = $1, description = $2, image_url = $3, images = $4, video_url = $5, category = $6 WHERE id = $7 RETURNING *',
+            [title, description, image_url, JSON.stringify(images || []), video_url, category, id]
+        );
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('Update project error:', err);
+        res.status(500).json({ error: 'Failed to update project' });
+    }
+});
+
 // Delete Project
 app.delete('/api/projects/:id', authenticatedUser, async (req, res) => {
     const { id } = req.params;
     try {
+        // Get project to delete associated files
+        const project = await query('SELECT images, video_url FROM projects WHERE id = $1', [id]);
+        if (project.rows.length > 0) {
+            const { images, video_url } = project.rows[0];
+
+            // Delete images
+            if (images && Array.isArray(images)) {
+                images.forEach(img => deleteImage(img.url));
+            }
+
+            // Delete video
+            if (video_url) {
+                deleteVideo(video_url);
+            }
+        }
+
         await query('DELETE FROM projects WHERE id = $1', [id]);
         res.json({ message: 'Project deleted' });
     } catch (err) {
@@ -120,6 +198,9 @@ app.get('/api/projects', async (req, res) => {
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
+
+// Serve uploaded files
+app.use('/upload', express.static('/upload'));
 
 // Serve Static Frontend (Production)
 app.use(express.static(path.join(__dirname, '../dist')));
