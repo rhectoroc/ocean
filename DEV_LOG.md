@@ -46,3 +46,5 @@
 2026-02-04 [FEATURE] Implemented complete project CRUD upgrade: drag-and-drop upload for 10 images + 1 video, image processing (resize/convert to JPG), web preview modal, and Easypanel volume integration (/upload).
 
 2026-02-04 [BUGFIX] Fixed image upload error: Sharp cannot use same file for input/output. Implemented temp file strategy for .jpg processing.
+
+2026-02-04 [FEATURE] Added project edit features: edit mode, cover image selection, tags system, and automatic carousel in web cards.

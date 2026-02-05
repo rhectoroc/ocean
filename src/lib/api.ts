@@ -15,6 +15,10 @@ export interface Project {
     image_url: string;
     category?: string;
     created_at: string;
+    images?: Array<{ url: string; order: number }>;
+    video_url?: string;
+    tags?: string[];
+    cover_image_index?: number;
 }
 
 export async function fetchServices(): Promise<Service[]> {

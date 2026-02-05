@@ -108,14 +108,15 @@ app.post('/api/upload/video', authenticatedUser, uploadVideo.single('file'), asy
 
 // Create Project
 app.post('/api/projects', authenticatedUser, async (req, res) => {
-    const { title, description, images, video_url, category } = req.body;
+    const { title, description, images, video_url, category, tags, cover_image_index } = req.body;
     try {
-        // For backward compatibility, set image_url to first image
-        const image_url = images && images.length > 0 ? images[0].url : null;
+        // For backward compatibility, set image_url to cover image or first image
+        const coverIndex = cover_image_index || 0;
+        const image_url = images && images.length > 0 ? images[coverIndex]?.url || images[0].url : null;
 
         const result = await query(
-            'INSERT INTO projects (title, description, image_url, images, video_url, category) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-            [title, description, image_url, JSON.stringify(images || []), video_url, category]
+            'INSERT INTO projects (title, description, image_url, images, video_url, category, tags, cover_image_index) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+            [title, description, image_url, JSON.stringify(images || []), video_url, category, tags || [], cover_image_index || 0]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -127,13 +128,14 @@ app.post('/api/projects', authenticatedUser, async (req, res) => {
 // Update Project
 app.put('/api/projects/:id', authenticatedUser, async (req, res) => {
     const { id } = req.params;
-    const { title, description, images, video_url, category } = req.body;
+    const { title, description, images, video_url, category, tags, cover_image_index } = req.body;
     try {
-        const image_url = images && images.length > 0 ? images[0].url : null;
+        const coverIndex = cover_image_index || 0;
+        const image_url = images && images.length > 0 ? images[coverIndex]?.url || images[0].url : null;
 
         const result = await query(
-            'UPDATE projects SET title = $1, description = $2, image_url = $3, images = $4, video_url = $5, category = $6 WHERE id = $7 RETURNING *',
-            [title, description, image_url, JSON.stringify(images || []), video_url, category, id]
+            'UPDATE projects SET title = $1, description = $2, image_url = $3, images = $4, video_url = $5, category = $6, tags = $7, cover_image_index = $8 WHERE id = $9 RETURNING *',
+            [title, description, image_url, JSON.stringify(images || []), video_url, category, tags || [], cover_image_index || 0, id]
         );
         res.json(result.rows[0]);
     } catch (err) {

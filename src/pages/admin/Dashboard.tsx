@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, LogOut, Eye, X } from 'lucide-react';
+import { Plus, Trash2, LogOut, Eye, X, Edit, Star } from 'lucide-react';
 import { API_URL, type Project } from '../../lib/api';
 import FileUploadZone from '../../components/admin/FileUploadZone';
 import ProjectPreview from '../../components/admin/ProjectPreview';
@@ -10,11 +10,14 @@ interface MediaImage {
     order: number;
 }
 
+const PREDEFINED_TAGS = ['New Project', 'Featured', 'Residential', 'Commercial'];
+
 const Dashboard = () => {
     const navigate = useNavigate();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
+    const [editingProject, setEditingProject] = useState<Project | null>(null);
     const [previewProject, setPreviewProject] = useState<any | null>(null);
 
     // Form State
@@ -23,7 +26,9 @@ const Dashboard = () => {
         description: '',
         category: 'Construction',
         images: [] as MediaImage[],
-        video_url: ''
+        video_url: '',
+        tags: [] as string[],
+        cover_image_index: 0
     });
 
     useEffect(() => {
@@ -76,6 +81,20 @@ const Dashboard = () => {
         }
     };
 
+    const handleEdit = (project: Project) => {
+        setEditingProject(project);
+        setFormData({
+            title: project.title,
+            description: project.description || '',
+            category: project.category || 'Construction',
+            images: Array.isArray(project.images) ? project.images : [],
+            video_url: project.video_url || '',
+            tags: Array.isArray(project.tags) ? project.tags : [],
+            cover_image_index: project.cover_image_index || 0
+        });
+        setShowForm(true);
+    };
+
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure you want to delete this project?')) return;
 
@@ -101,7 +120,7 @@ const Dashboard = () => {
         }));
         setFormData(prev => ({
             ...prev,
-            images: [...prev.images, ...newImages].slice(0, 10) // Max 10 images
+            images: [...prev.images, ...newImages].slice(0, 10)
         }));
     };
 
@@ -112,9 +131,31 @@ const Dashboard = () => {
     };
 
     const removeImage = (index: number) => {
+        setFormData(prev => {
+            const newImages = prev.images.filter((_, i) => i !== index).map((img, i) => ({ ...img, order: i }));
+            // Adjust cover index if needed
+            let newCoverIndex = prev.cover_image_index;
+            if (newCoverIndex >= newImages.length) {
+                newCoverIndex = Math.max(0, newImages.length - 1);
+            }
+            return {
+                ...prev,
+                images: newImages,
+                cover_image_index: newCoverIndex
+            };
+        });
+    };
+
+    const setCoverImage = (index: number) => {
+        setFormData(prev => ({ ...prev, cover_image_index: index }));
+    };
+
+    const toggleTag = (tag: string) => {
         setFormData(prev => ({
             ...prev,
-            images: prev.images.filter((_, i) => i !== index).map((img, i) => ({ ...img, order: i }))
+            tags: prev.tags.includes(tag)
+                ? prev.tags.filter(t => t !== tag)
+                : [...prev.tags, tag]
         }));
     };
 
@@ -127,8 +168,14 @@ const Dashboard = () => {
         }
 
         try {
-            const res = await fetch(`${API_URL}/projects`, {
-                method: 'POST',
+            const url = editingProject
+                ? `${API_URL}/projects/${editingProject.id}`
+                : `${API_URL}/projects`;
+
+            const method = editingProject ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -136,10 +183,13 @@ const Dashboard = () => {
             });
 
             if (res.ok) {
-                const newProject = await res.json();
-                setProjects([newProject, ...projects]);
-                setShowForm(false);
-                setFormData({ title: '', description: '', category: 'Construction', images: [], video_url: '' });
+                const savedProject = await res.json();
+                if (editingProject) {
+                    setProjects(projects.map(p => p.id === savedProject.id ? savedProject : p));
+                } else {
+                    setProjects([savedProject, ...projects]);
+                }
+                resetForm();
             } else {
                 alert('Error al guardar el proyecto. Verifica tu sesión.');
             }
@@ -148,10 +198,24 @@ const Dashboard = () => {
         }
     };
 
+    const resetForm = () => {
+        setShowForm(false);
+        setEditingProject(null);
+        setFormData({
+            title: '',
+            description: '',
+            category: 'Construction',
+            images: [],
+            video_url: '',
+            tags: [],
+            cover_image_index: 0
+        });
+    };
+
     const handlePreview = () => {
         setPreviewProject({
             ...formData,
-            id: 0
+            id: editingProject?.id || 0
         });
     };
 
@@ -175,7 +239,13 @@ const Dashboard = () => {
                 <div className="mb-8 flex justify-between items-center">
                     <h2 className="text-xl font-semibold text-gray-800">Projects Management</h2>
                     <button
-                        onClick={() => setShowForm(!showForm)}
+                        onClick={() => {
+                            if (showForm) {
+                                resetForm();
+                            } else {
+                                setShowForm(true);
+                            }
+                        }}
                         className="bg-ocean-600 text-white px-4 py-2 rounded-md hover:bg-ocean-700 flex items-center gap-2 min-h-[44px]"
                     >
                         <Plus size={20} />
@@ -183,10 +253,12 @@ const Dashboard = () => {
                     </button>
                 </div>
 
-                {/* Add Form */}
+                {/* Add/Edit Form */}
                 {showForm && (
                     <div className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
-                        <h3 className="text-lg font-bold mb-4">New Project</h3>
+                        <h3 className="text-lg font-bold mb-4">
+                            {editingProject ? 'Edit Project' : 'New Project'}
+                        </h3>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Basic Info */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -225,37 +297,78 @@ const Dashboard = () => {
                                 />
                             </div>
 
+                            {/* Tags */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {PREDEFINED_TAGS.map(tag => (
+                                        <button
+                                            key={tag}
+                                            type="button"
+                                            onClick={() => toggleTag(tag)}
+                                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${formData.tags.includes(tag)
+                                                    ? 'bg-ocean-600 text-white'
+                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                                }`}
+                                        >
+                                            {tag}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             {/* Images Upload */}
-                            <FileUploadZone
-                                label={`Images (${formData.images.length}/10)`}
-                                accept="image/*"
-                                maxFiles={10 - formData.images.length}
-                                uploadEndpoint={`${API_URL}/upload/image`}
-                                onFilesUploaded={handleImagesUploaded}
-                            />
+                            {formData.images.length < 10 && (
+                                <FileUploadZone
+                                    label={`Images (${formData.images.length}/10)`}
+                                    accept="image/*"
+                                    maxFiles={10 - formData.images.length}
+                                    uploadEndpoint={`${API_URL}/upload/image`}
+                                    onFilesUploaded={handleImagesUploaded}
+                                />
+                            )}
 
                             {/* Image Grid */}
                             {formData.images.length > 0 && (
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {formData.images.map((img, index) => (
-                                        <div key={index} className="relative group">
-                                            <img
-                                                src={img.url}
-                                                alt={`Upload ${index + 1}`}
-                                                className="w-full h-32 object-cover rounded-lg border-2 border-gray-200"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => removeImage(index)}
-                                                className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <X size={16} />
-                                            </button>
-                                            <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                                                #{index + 1}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Images (Click star to set as cover)
+                                    </label>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {formData.images.map((img, index) => (
+                                            <div key={index} className="relative group">
+                                                <img
+                                                    src={img.url}
+                                                    alt={`Upload ${index + 1}`}
+                                                    className={`w-full h-32 object-cover rounded-lg border-2 ${index === formData.cover_image_index
+                                                            ? 'border-yellow-500'
+                                                            : 'border-gray-200'
+                                                        }`}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCoverImage(index)}
+                                                    className={`absolute top-2 left-2 p-1 rounded-full transition-opacity ${index === formData.cover_image_index
+                                                            ? 'bg-yellow-500 text-white'
+                                                            : 'bg-white/80 text-gray-600 opacity-0 group-hover:opacity-100'
+                                                        }`}
+                                                    title="Set as cover image"
+                                                >
+                                                    <Star size={16} fill={index === formData.cover_image_index ? 'currentColor' : 'none'} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(index)}
+                                                    className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                                <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                                    #{index + 1}
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             )}
 
@@ -301,7 +414,7 @@ const Dashboard = () => {
                                     type="submit"
                                     className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 min-h-[44px] font-bold"
                                 >
-                                    Save Project
+                                    {editingProject ? 'Update Project' : 'Save Project'}
                                 </button>
                             </div>
                         </form>
@@ -318,15 +431,33 @@ const Dashboard = () => {
                                     <div>
                                         <h4 className="text-lg font-bold text-gray-900">{project.title}</h4>
                                         <p className="text-sm text-gray-500">{project.category}</p>
+                                        {project.tags && project.tags.length > 0 && (
+                                            <div className="flex gap-1 mt-1">
+                                                {project.tags.map((tag, idx) => (
+                                                    <span key={idx} className="text-xs bg-ocean-100 text-ocean-700 px-2 py-0.5 rounded">
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => handleDelete(project.id)}
-                                    className="text-red-600 hover:text-red-900 p-2"
-                                    title="Delete Project"
-                                >
-                                    <Trash2 size={20} />
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleEdit(project)}
+                                        className="text-ocean-600 hover:text-ocean-900 p-2"
+                                        title="Edit Project"
+                                    >
+                                        <Edit size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(project.id)}
+                                        className="text-red-600 hover:text-red-900 p-2"
+                                        title="Delete Project"
+                                    >
+                                        <Trash2 size={20} />
+                                    </button>
+                                </div>
                             </li>
                         ))}
                         {projects.length === 0 && !loading && (
