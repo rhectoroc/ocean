@@ -52,11 +52,10 @@ router.post('/', uploadImage.single('file'), async (req, res) => {
             return res.status(400).json({ error: 'Image file is required' });
         }
 
-        // Process image
         const { processedPath, thumbnailPath } = await processImage(req.file.path);
 
-        const image_url = `/uploads/${processedPath.split('/').pop().split('\\').pop()}`;
-        const thumbnail_url = `/uploads/${thumbnailPath.split('/').pop().split('\\').pop()}`;
+        const image_url = processedPath;
+        const thumbnail_url = thumbnailPath;
 
         const result = await query(
             'INSERT INTO gallery (image_url, thumbnail_url, title, description, display_order) VALUES ($1, $2, $3, $4, $5) RETURNING *',
@@ -84,8 +83,9 @@ router.put('/:id', uploadImage.single('file'), async (req, res) => {
         // If new image is uploaded, process it
         if (req.file) {
             const { processedPath, thumbnailPath } = await processImage(req.file.path);
-            const image_url = `/uploads/${processedPath.split('/').pop().split('\\').pop()}`;
-            const thumbnail_url = `/uploads/${thumbnailPath.split('/').pop().split('\\').pop()}`;
+
+            const image_url = processedPath;
+            const thumbnail_url = thumbnailPath;
 
             updates.push(`image_url = $${paramCount++}`);
             values.push(image_url);
