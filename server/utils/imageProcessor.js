@@ -19,30 +19,33 @@ export async function processImage(inputPath) {
     try {
         const ext = path.extname(inputPath).toLowerCase();
         const filename = path.basename(inputPath, ext);
-        const processedFilename = `${filename}.jpg`;
+        const processedFilename = `${filename}.webp`;
         const processedPath = path.join(UPLOAD_DIR, processedFilename);
         const thumbnailPath = path.join(THUMBNAILS_DIR, processedFilename);
 
-        // If input is already .jpg and has the same name, use a temp file
-        const needsTemp = ext === '.jpg' && inputPath === processedPath;
-        const tempPath = needsTemp ? path.join(UPLOAD_DIR, `temp_${filename}.jpg`) : null;
+        // If input is already .webp and has the same name, use a temp file
+        const needsTemp = ext === '.webp' && inputPath === processedPath;
+        const tempPath = needsTemp ? path.join(UPLOAD_DIR, `temp_${filename}.webp`) : null;
 
-        // Process main image: resize to max 1920x1080, convert to JPG, compress
+        // Process main image: resize to max 1920x1080, convert to WebP, compress
         await sharp(inputPath)
             .resize(1920, 1080, {
                 fit: 'inside',
                 withoutEnlargement: true
             })
-            .jpeg({ quality: 85 })
+            .webp({ quality: 80 })
             .toFile(needsTemp ? tempPath : processedPath);
 
         // If we used a temp file, replace the original
         if (needsTemp) {
             fs.unlinkSync(inputPath);
             fs.renameSync(tempPath, processedPath);
-        } else if (ext !== '.jpg') {
-            // Delete original if it's not a JPG
-            fs.unlinkSync(inputPath);
+        } else if (ext !== '.webp') {
+            // Delete original if it's not a WebP (and we're not working on the original file in-place)
+            // Note: inputPath might be the same as processedPath if we are re-processing
+            if (inputPath !== processedPath && fs.existsSync(inputPath)) {
+                fs.unlinkSync(inputPath);
+            }
         }
 
         // Generate thumbnail: 400x300
@@ -51,7 +54,7 @@ export async function processImage(inputPath) {
                 fit: 'cover',
                 position: 'center'
             })
-            .jpeg({ quality: 80 })
+            .webp({ quality: 70 })
             .toFile(thumbnailPath);
 
         return {
