@@ -17,10 +17,15 @@ if (!fs.existsSync(THUMBNAILS_DIR)) {
  */
 export async function processImage(inputPath) {
     try {
-        const filename = path.basename(inputPath, path.extname(inputPath));
+        const ext = path.extname(inputPath).toLowerCase();
+        const filename = path.basename(inputPath, ext);
         const processedFilename = `${filename}.jpg`;
         const processedPath = path.join(UPLOAD_DIR, processedFilename);
         const thumbnailPath = path.join(THUMBNAILS_DIR, processedFilename);
+
+        // If input is already .jpg and has the same name, use a temp file
+        const needsTemp = ext === '.jpg' && inputPath === processedPath;
+        const tempPath = needsTemp ? path.join(UPLOAD_DIR, `temp_${filename}.jpg`) : null;
 
         // Process main image: resize to max 1920x1080, convert to JPG, compress
         await sharp(inputPath)
@@ -29,21 +34,25 @@ export async function processImage(inputPath) {
                 withoutEnlargement: true
             })
             .jpeg({ quality: 85 })
-            .toFile(processedPath);
+            .toFile(needsTemp ? tempPath : processedPath);
+
+        // If we used a temp file, replace the original
+        if (needsTemp) {
+            fs.unlinkSync(inputPath);
+            fs.renameSync(tempPath, processedPath);
+        } else if (ext !== '.jpg') {
+            // Delete original if it's not a JPG
+            fs.unlinkSync(inputPath);
+        }
 
         // Generate thumbnail: 400x300
-        await sharp(inputPath)
+        await sharp(processedPath)
             .resize(400, 300, {
                 fit: 'cover',
                 position: 'center'
             })
             .jpeg({ quality: 80 })
             .toFile(thumbnailPath);
-
-        // Delete original file if it's not already a JPG
-        if (path.extname(inputPath).toLowerCase() !== '.jpg') {
-            fs.unlinkSync(inputPath);
-        }
 
         return {
             processedPath: `/upload/${processedFilename}`,

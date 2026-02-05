@@ -44,3 +44,5 @@
 2026-02-04 [FIX] Fixed Navbar navigation links. Replaced conflicting Link/anchor structure with smooth scroll handlers for hash navigation. Updated both desktop and mobile menus.
 2026-02-04 [REFACTOR] Replaced video avatar with traditional MessageCircle icon in FloatingChatbot. Updated button and header styles for cleaner, more standard chatbot appearance.
 2026-02-04 [FEATURE] Implemented complete project CRUD upgrade: drag-and-drop upload for 10 images + 1 video, image processing (resize/convert to JPG), web preview modal, and Easypanel volume integration (/upload).
+
+2026-02-04 [BUGFIX] Fixed image upload error: Sharp cannot use same file for input/output. Implemented temp file strategy for .jpg processing.
