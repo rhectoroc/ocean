@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, LogOut, Eye, X, Edit, Star, LayoutDashboard, FolderKanban, Menu as MenuIcon, User, ChevronLeft } from 'lucide-react';
+import { Plus, Trash2, LogOut, Eye, X, Edit, Star, FolderKanban, Menu as MenuIcon, User, ChevronLeft, Image as ImageIcon, Users } from 'lucide-react';
+
+
 import { API_URL, type Project } from '../../lib/api';
 import FileUploadZone from '../../components/admin/FileUploadZone';
 import ProjectPreview from '../../components/admin/ProjectPreview';
@@ -251,13 +253,26 @@ const Dashboard = () => {
 
                 {/* Sidebar Menu */}
                 <nav className="flex-1 p-4 space-y-2">
-                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-ocean-50 text-ocean-700 font-medium transition-colors">
-                        <LayoutDashboard size={20} />
-                        {sidebarOpen && <span>Dashboard</span>}
-                    </button>
-                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">
+                    <button
+                        onClick={() => navigate('/admin/dashboard')}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-ocean-50 text-ocean-700 font-medium transition-colors"
+                    >
                         <FolderKanban size={20} />
                         {sidebarOpen && <span>Projects</span>}
+                    </button>
+                    <button
+                        onClick={() => navigate('/admin/gallery')}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors"
+                    >
+                        <ImageIcon size={20} />
+                        {sidebarOpen && <span>Gallery</span>}
+                    </button>
+                    <button
+                        onClick={() => navigate('/admin/users')}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors"
+                    >
+                        <Users size={20} />
+                        {sidebarOpen && <span>Users</span>}
                     </button>
                 </nav>
 

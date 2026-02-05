@@ -8,6 +8,8 @@ import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import { uploadImage, uploadVideo } from './middleware/upload.js';
 import { processImage, deleteImage, deleteVideo } from './utils/imageProcessor.js';
+import galleryRoutes from './routes/gallery.js';
+import usersRoutes from './routes/users.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -196,7 +198,14 @@ app.get('/api/projects', async (req, res) => {
     }
 });
 
-// Health Check
+// --- API ROUTES ---
+// Gallery routes (protected)
+app.use('/api/gallery', authenticatedUser, galleryRoutes);
+
+// Users routes (protected)
+app.use('/api/users', authenticatedUser, usersRoutes);
+
+// Health check
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });

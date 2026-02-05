@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Home from './pages/public/Home';
 import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
+import Gallery from './pages/admin/Gallery';
+import Users from './pages/admin/Users';
 import LegalNotice from './pages/public/LegalNotice';
 import PrivacyPolicy from './pages/public/PrivacyPolicy';
 import FloatingChatbot from './components/FloatingChatbot';
@@ -17,6 +19,8 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<Login />} />
         <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/admin/gallery" element={<Gallery />} />
+        <Route path="/admin/users" element={<Users />} />
         <Route path="/legal-notice" element={<LegalNotice />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       </Routes>
