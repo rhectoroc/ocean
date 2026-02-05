@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 
-const UPLOAD_DIR = '/upload';
+const UPLOAD_DIR = path.join(process.cwd(), 'upload');
 const THUMBNAILS_DIR = path.join(UPLOAD_DIR, 'thumbnails');
 
 // Ensure thumbnails directory exists
