@@ -212,6 +212,8 @@ app.get('/health', (req, res) => {
 
 // Serve uploaded files
 app.use('/upload', express.static(path.join(process.cwd(), 'upload')));
+// Fallback for production volume or legacy paths
+app.use('/upload', express.static('/upload'));
 
 // Serve Static Frontend (Production)
 app.use(express.static(path.join(__dirname, '../dist')));

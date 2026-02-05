@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 
-const UPLOAD_DIR = path.join(process.cwd(), 'upload');
+const UPLOAD_DIR = process.platform === 'win32' ? path.join(process.cwd(), 'upload') : '/upload';
 const THUMBNAILS_DIR = path.join(UPLOAD_DIR, 'thumbnails');
 
 // Ensure thumbnails directory exists

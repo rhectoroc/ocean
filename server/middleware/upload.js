@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 
 // Ensure upload directory exists
-const UPLOAD_DIR = path.join(process.cwd(), 'upload');
+const UPLOAD_DIR = process.platform === 'win32' ? path.join(process.cwd(), 'upload') : '/upload';
 if (!fs.existsSync(UPLOAD_DIR)) {
     fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
