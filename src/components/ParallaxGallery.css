@@ -24,9 +24,9 @@
     margin: 0 auto;
 }
 
-.parallax-img {
-    background-size: cover;
-    background-position: center;
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
 }
 
 .parallax-vignette {

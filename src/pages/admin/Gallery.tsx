@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Upload, Image as ImageIcon, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
 import type { GalleryImage } from '../../lib/galleryApi';
 import { fetchGalleryImages, createGalleryImage, updateGalleryImage, deleteGalleryImage, reorderGalleryImages } from '../../lib/galleryApi';
+import { useToast } from '../../components/ui/ToastContext';
+import ConfirmModal from '../../components/ui/ConfirmModal';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const MAX_IMAGES = 10;
@@ -10,6 +12,13 @@ const Gallery = () => {
     const [images, setImages] = useState<GalleryImage[]>([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
+
+    // Custom Notifications
+    const { addToast } = useToast();
+
+    // Modal State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [imageToDelete, setImageToDelete] = useState<number | null>(null);
 
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -24,7 +33,7 @@ const Gallery = () => {
             setImages(data);
         } catch (error) {
             console.error('Error loading gallery:', error);
-            alert('Failed to load gallery images');
+            addToast('Failed to load gallery images', 'error');
         } finally {
             setLoading(false);
         }
@@ -36,13 +45,13 @@ const Gallery = () => {
 
         const remainingSlots = MAX_IMAGES - images.length;
         if (remainingSlots <= 0) {
-            alert(`Maximum of ${MAX_IMAGES} images allowed`);
+            addToast(`Maximum of ${MAX_IMAGES} images allowed`, 'error');
             return;
         }
 
         const filesToUpload = imageFiles.slice(0, remainingSlots);
         if (imageFiles.length > remainingSlots) {
-            alert(`Only ${remainingSlots} slots remaining. Uploading first ${remainingSlots} images.`);
+            addToast(`Only ${remainingSlots} slots remaining. Uploading first ${remainingSlots} images.`, 'info');
         }
 
         setUploading(true);
@@ -59,9 +68,10 @@ const Gallery = () => {
             }
 
             await loadImages();
+            addToast('Images uploaded successfully', 'success');
         } catch (error: any) {
             console.error('Error uploading images:', error);
-            alert(error.message || 'Failed to upload images');
+            addToast(error.message || 'Failed to upload images', 'error');
         } finally {
             setUploading(false);
         }
@@ -95,21 +105,33 @@ const Gallery = () => {
             formData.append('is_active', (!image.is_active).toString());
             await updateGalleryImage(image.id, formData);
             await loadImages();
+            addToast(`Image ${!image.is_active ? 'activated' : 'deactivated'}`, 'success');
         } catch (error) {
             console.error('Error toggling active status:', error);
-            alert('Failed to update image status');
+            addToast('Failed to update image status', 'error');
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this image?')) return;
+    // Open Delete Modal
+    const confirmDelete = (id: number) => {
+        setImageToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    // Execute Delete
+    const handleDelete = async () => {
+        if (!imageToDelete) return;
 
         try {
-            await deleteGalleryImage(id);
+            await deleteGalleryImage(imageToDelete);
             await loadImages();
+            addToast('Image deleted successfully', 'success');
         } catch (error) {
             console.error('Error deleting image:', error);
-            alert('Failed to delete image');
+            addToast('Failed to delete image', 'error');
+        } finally {
+            setShowDeleteModal(false);
+            setImageToDelete(null);
         }
     };
 
@@ -146,10 +168,10 @@ const Gallery = () => {
             await reorderGalleryImages(items);
             await loadImages();
             setHasUnsavedChanges(false);
-            alert('Order saved successfully');
+            addToast('Order saved successfully', 'success');
         } catch (error) {
             console.error('Error reordering images:', error);
-            alert('Failed to reorder images');
+            addToast('Failed to reorder images', 'error');
             await loadImages();
         } finally {
             setLoading(false);
@@ -166,6 +188,17 @@ const Gallery = () => {
 
     return (
         <div className="p-6">
+            <ConfirmModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={handleDelete}
+                title="Delete Image"
+                message="Are you sure you want to delete this image? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                isDestructive={true}
+            />
+
             <div className="mb-6 flex justify-between items-end">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Gallery Management</h1>
@@ -276,7 +309,7 @@ const Gallery = () => {
                                         <span>{image.is_active ? 'Hide' : 'Show'}</span>
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(image.id)}
+                                        onClick={() => confirmDelete(image.id)}
                                         className="px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors flex items-center gap-2"
                                     >
                                         <Trash2 size={18} />
@@ -286,6 +319,7 @@ const Gallery = () => {
                         </div>
                     ))}
                 </div>
+
             )}
         </div>
     );

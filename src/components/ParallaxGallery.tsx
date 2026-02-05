@@ -68,8 +68,8 @@ const ParallaxGallery = () => {
                 rotateY: i * -60,
                 transformOrigin: '50% 50% 600px',
                 z: -600,
-                // backgroundImage is set in the style attribute of the div
-                backgroundPosition: getBgPos(i),
+                // backgroundPosition is simple center, we rely on the 3D rotation for the effect
+                backgroundPosition: 'center',
                 backgroundSize: 'cover',
                 backfaceVisibility: 'hidden',
                 force3D: true
@@ -96,14 +96,7 @@ const ParallaxGallery = () => {
                 if (e.touches) e.clientX = e.touches[0].clientX;
 
                 gsap.to(ring, {
-                    rotationY: '-=' + ((Math.round(e.clientX) - xPosRef.current) % 360),
-                    onUpdate: () => {
-                        imgs.forEach((img, i) => {
-                            gsap.set(img, {
-                                backgroundPosition: getBgPos(i)
-                            });
-                        });
-                    }
+                    rotationY: '-=' + ((Math.round(e.clientX) - xPosRef.current) % 360)
                 });
 
                 xPosRef.current = Math.round(e.clientX);
