@@ -23,7 +23,14 @@ const __dirname = path.dirname(__filename);
 app.set("trust proxy", true);
 
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+        directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            "img-src": ["'self'", "data:", "blob:"],
+            "frame-src": ["'self'", "https://www.google.com", "https://www.youtube.com"],
+        },
+    },
 }));
 
 app.use(cors({

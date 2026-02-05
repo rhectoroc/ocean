@@ -46,8 +46,15 @@
 /* Mobile responsiveness */
 @media (max-width: 640px) {
     .parallax-container {
-        width: 300px;
+        width: 280px;
         height: 250px;
+        perspective: 1000px;
+        /* Reduced perspective for mobile */
+    }
+
+    .parallax-vignette {
+        width: 100%;
+        /* Fix vignette width on mobile */
     }
 }
 
