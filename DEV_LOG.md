@@ -50,3 +50,5 @@
 2026-02-04 [FEATURE] Added project edit features: edit mode, cover image selection, tags system, and automatic carousel in web cards.
 
 2026-02-04 [UI] Redesigned admin dashboard with modern SaaS interface: collapsible sidebar, top bar with logo and user profile, card-based project grid.
+
+2026-02-04 [UI] Redesigned login page with animated ocean theme: gradient background, wave animations, glassmorphism, floating bubbles, smooth transitions.
