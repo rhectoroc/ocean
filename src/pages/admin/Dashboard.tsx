@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, LogOut, Eye, X, Edit, Star, FolderKanban, Menu as MenuIcon, User, ChevronLeft, Image as ImageIcon, Users as UsersIcon } from 'lucide-react';
+import { Plus, Trash2, LogOut, Eye, X, Edit, Star, FolderKanban, Menu as MenuIcon, User, ChevronLeft, Image as ImageIcon, Users as UsersIcon, Bot } from 'lucide-react';
 
 import { API_URL, type Project } from '../../lib/api';
 import FileUploadZone from '../../components/admin/FileUploadZone';
 import ProjectPreview from '../../components/admin/ProjectPreview';
 import Gallery from './Gallery';
 import Users from './Users';
+import BotSettings from './BotSettings';
 
 interface MediaImage {
     url: string;
@@ -24,7 +25,7 @@ const Dashboard = () => {
     const [previewProject, setPreviewProject] = useState<any | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [userEmail, setUserEmail] = useState('');
-    const [currentSection, setCurrentSection] = useState<'projects' | 'gallery' | 'users'>('projects');
+    const [currentSection, setCurrentSection] = useState<'projects' | 'gallery' | 'users' | 'bot'>('projects');
 
     // Form State
     const [formData, setFormData] = useState({
@@ -279,6 +280,14 @@ const Dashboard = () => {
                         <UsersIcon size={20} />
                         {sidebarOpen && <span>Users</span>}
                     </button>
+                    <button
+                        onClick={() => setCurrentSection('bot')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${currentSection === 'bot' ? 'bg-ocean-50 text-ocean-700' : 'hover:bg-gray-50 text-gray-700'
+                            }`}
+                    >
+                        <Bot size={20} />
+                        {sidebarOpen && <span>Bot Brain</span>}
+                    </button>
                 </nav>
 
                 {/* Sidebar Footer */}
@@ -319,6 +328,7 @@ const Dashboard = () => {
                             {currentSection === 'projects' && 'Projects Management'}
                             {currentSection === 'gallery' && 'Gallery Management'}
                             {currentSection === 'users' && 'Users Management'}
+                            {currentSection === 'bot' && 'Bot Brain Configuration'}
                         </h1>
                     </div>
 
@@ -590,6 +600,7 @@ const Dashboard = () => {
 
                     {currentSection === 'gallery' && <Gallery />}
                     {currentSection === 'users' && <Users />}
+                    {currentSection === 'bot' && <BotSettings />}
                 </main>
             </div>
 

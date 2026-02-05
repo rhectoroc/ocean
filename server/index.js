@@ -11,6 +11,7 @@ import { uploadImage, uploadVideo } from './middleware/upload.js';
 import { processImage, deleteImage, deleteVideo } from './utils/imageProcessor.js';
 import galleryRoutes from './routes/gallery.js';
 import usersRoutes from './routes/users.js';
+import botRoutes from './routes/bot.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -216,6 +217,14 @@ app.use('/api/gallery', authenticatedUser, galleryRoutes);
 
 // Users routes (protected)
 app.use('/api/users', authenticatedUser, usersRoutes);
+
+// Bot routes (Mixed: Config is protected, Context is public)
+app.use('/api/bot', async (req, res, next) => {
+    if (req.path.startsWith('/context/')) {
+        return next();
+    }
+    return authenticatedUser(req, res, next);
+}, botRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
