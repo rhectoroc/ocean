@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet';
 import cors from 'cors';
 import { query } from './db.js';
 import { ExpressAuth, getSession } from "@auth/express";
@@ -20,6 +21,10 @@ const __dirname = path.dirname(__filename);
 
 // Trust proxy for secure cookies in production (EasyPanel)
 app.set("trust proxy", true);
+
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 app.use(cors({
     origin: '*',
