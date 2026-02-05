@@ -131,7 +131,7 @@ const FloatingChatbot = () => {
 
             {/* Chat Window */}
             {isOpen && (
-                <div className="chatbot-window">
+                <div className="chatbot-modal">
                     {/* Header */}
                     <div className="chatbot-header">
                         <div className="flex items-center gap-3">
@@ -157,20 +157,20 @@ const FloatingChatbot = () => {
                         {messages.map((message) => (
                             <div
                                 key={message.id}
-                                className={`message ${message.sender === 'user' ? 'message-user' : 'message-bot'}`}
+                                className={`chatbot-message ${message.sender === 'user' ? 'chatbot-message-user' : 'chatbot-message-bot'}`}
                             >
-                                <div className="message-bubble">
+                                <div className="chatbot-message-content">
                                     {message.text}
                                 </div>
-                                <span className="message-time">
+                                <span className="chatbot-message-time">
                                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                             </div>
                         ))}
                         {isLoading && (
-                            <div className="message message-bot">
-                                <div className="message-bubble">
-                                    <div className="typing-indicator">
+                            <div className="chatbot-message chatbot-message-bot">
+                                <div className="chatbot-message-content">
+                                    <div className="chatbot-typing">
                                         <span></span>
                                         <span></span>
                                         <span></span>
@@ -182,7 +182,7 @@ const FloatingChatbot = () => {
                     </div>
 
                     {/* Input */}
-                    <form onSubmit={handleSubmit} className="chatbot-input">
+                    <form onSubmit={handleSubmit} className="chatbot-input-container">
                         <input
                             type="text"
                             value={inputValue}
