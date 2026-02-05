@@ -48,3 +48,5 @@
 2026-02-04 [BUGFIX] Fixed image upload error: Sharp cannot use same file for input/output. Implemented temp file strategy for .jpg processing.
 
 2026-02-04 [FEATURE] Added project edit features: edit mode, cover image selection, tags system, and automatic carousel in web cards.
+
+2026-02-04 [UI] Redesigned admin dashboard with modern SaaS interface: collapsible sidebar, top bar with logo and user profile, card-based project grid.

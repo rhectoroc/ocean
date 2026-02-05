@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, LogOut, Eye, X, Edit, Star } from 'lucide-react';
+import { Plus, Trash2, LogOut, Eye, X, Edit, Star, LayoutDashboard, FolderKanban, Menu as MenuIcon, User, ChevronLeft } from 'lucide-react';
 import { API_URL, type Project } from '../../lib/api';
 import FileUploadZone from '../../components/admin/FileUploadZone';
 import ProjectPreview from '../../components/admin/ProjectPreview';
@@ -19,6 +19,8 @@ const Dashboard = () => {
     const [showForm, setShowForm] = useState(false);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
     const [previewProject, setPreviewProject] = useState<any | null>(null);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [userEmail, setUserEmail] = useState('');
 
     // Form State
     const [formData, setFormData] = useState({
@@ -40,6 +42,11 @@ const Dashboard = () => {
                 if (!session || Object.keys(session).length === 0) {
                     navigate('/admin');
                     return;
+                }
+
+                // Extract user email from session
+                if (session.user?.email) {
+                    setUserEmail(session.user.email);
                 }
 
                 fetchProjects();
@@ -133,7 +140,6 @@ const Dashboard = () => {
     const removeImage = (index: number) => {
         setFormData(prev => {
             const newImages = prev.images.filter((_, i) => i !== index).map((img, i) => ({ ...img, order: i }));
-            // Adjust cover index if needed
             let newCoverIndex = prev.cover_image_index;
             if (newCoverIndex >= newImages.length) {
                 newCoverIndex = Math.max(0, newImages.length - 1);
@@ -219,253 +225,323 @@ const Dashboard = () => {
         });
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center">Cargando dashboard...</div>;
+    const getUserName = () => {
+        if (!userEmail) return 'Admin';
+        return userEmail.split('@')[0];
+    };
+
+    if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-100">Cargando dashboard...</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            <header className="bg-white shadow">
-                <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-900">CMS Dashboard</h1>
-                    <button onClick={handleLogout} className="flex items-center text-gray-600 hover:text-red-600 transition-colors">
-                        <LogOut size={20} className="mr-2" />
-                        Logout
-                    </button>
-                </div>
-            </header>
-
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Actions */}
-                <div className="mb-8 flex justify-between items-center">
-                    <h2 className="text-xl font-semibold text-gray-800">Projects Management</h2>
+        <div className="flex h-screen bg-gray-100 overflow-hidden">
+            {/* Sidebar */}
+            <aside className={`bg-white border-r border-gray-200 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
+                {/* Sidebar Header */}
+                <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+                    {sidebarOpen && (
+                        <img src="/logofondo.png" alt="Ocean" className="h-10" />
+                    )}
                     <button
-                        onClick={() => {
-                            if (showForm) {
-                                resetForm();
-                            } else {
-                                setShowForm(true);
-                            }
-                        }}
-                        className="bg-ocean-600 text-white px-4 py-2 rounded-md hover:bg-ocean-700 flex items-center gap-2 min-h-[44px]"
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors ml-auto"
                     >
-                        <Plus size={20} />
-                        {showForm ? 'Cancel' : 'Add Project'}
+                        {sidebarOpen ? <ChevronLeft size={20} /> : <MenuIcon size={20} />}
                     </button>
                 </div>
 
-                {/* Add/Edit Form */}
-                {showForm && (
-                    <div className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
-                        <h3 className="text-lg font-bold mb-4">
-                            {editingProject ? 'Edit Project' : 'New Project'}
-                        </h3>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Basic Info */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Sidebar Menu */}
+                <nav className="flex-1 p-4 space-y-2">
+                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-ocean-50 text-ocean-700 font-medium transition-colors">
+                        <LayoutDashboard size={20} />
+                        {sidebarOpen && <span>Dashboard</span>}
+                    </button>
+                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">
+                        <FolderKanban size={20} />
+                        {sidebarOpen && <span>Projects</span>}
+                    </button>
+                </nav>
+
+                {/* Sidebar Footer */}
+                <div className="p-4 border-t border-gray-200">
+                    {sidebarOpen && (
+                        <div className="text-xs text-gray-500 text-center">
+                            Ocean CMS v1.0
+                        </div>
+                    )}
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Top Bar */}
+                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-xl font-bold text-gray-900">Projects Management</h1>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        {/* User Info */}
+                        <div className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-8 h-8 rounded-full bg-ocean-100 flex items-center justify-center">
+                                <User size={18} className="text-ocean-700" />
+                            </div>
+                            <span className="text-sm font-medium text-gray-700">{getUserName()}</span>
+                        </div>
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        >
+                            <LogOut size={18} />
+                            <span className="text-sm font-medium">Logout</span>
+                        </button>
+                    </div>
+                </header>
+
+                {/* Content Area */}
+                <main className="flex-1 overflow-y-auto p-6">
+                    {/* Actions */}
+                    <div className="mb-6 flex justify-between items-center">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
+                            <p className="text-sm text-gray-500 mt-1">Manage your portfolio projects</p>
+                        </div>
+                        <button
+                            onClick={() => {
+                                if (showForm) {
+                                    resetForm();
+                                } else {
+                                    setShowForm(true);
+                                }
+                            }}
+                            className="bg-ocean-600 text-white px-6 py-3 rounded-lg hover:bg-ocean-700 flex items-center gap-2 shadow-sm transition-all hover:shadow-md"
+                        >
+                            <Plus size={20} />
+                            {showForm ? 'Cancel' : 'Add Project'}
+                        </button>
+                    </div>
+
+                    {/* Add/Edit Form */}
+                    {showForm && (
+                        <div className="bg-white p-6 rounded-xl shadow-sm mb-6 border border-gray-200">
+                            <h3 className="text-lg font-bold mb-6 text-gray-900">
+                                {editingProject ? 'Edit Project' : 'New Project'}
+                            </h3>
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* Basic Info */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Project Title</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-colors"
+                                            value={formData.title}
+                                            onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                        <select
+                                            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-colors"
+                                            value={formData.category}
+                                            onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                        >
+                                            <option value="Construction">Construction</option>
+                                            <option value="Remodeling">Remodeling</option>
+                                            <option value="Roofs">Roofs</option>
+                                            <option value="Commercial">Commercial</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Project Title</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        className="mt-1 w-full border border-gray-300 rounded-md p-2 min-h-[44px]"
-                                        value={formData.title}
-                                        onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                    <textarea
+                                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-colors"
+                                        rows={3}
+                                        value={formData.description}
+                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
                                     />
                                 </div>
+
+                                {/* Tags */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Category</label>
-                                    <select
-                                        className="mt-1 w-full border border-gray-300 rounded-md p-2 min-h-[44px]"
-                                        value={formData.category}
-                                        onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                    >
-                                        <option value="Construction">Construction</option>
-                                        <option value="Remodeling">Remodeling</option>
-                                        <option value="Roofs">Roofs</option>
-                                        <option value="Commercial">Commercial</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Description</label>
-                                <textarea
-                                    className="mt-1 w-full border border-gray-300 rounded-md p-2"
-                                    rows={3}
-                                    value={formData.description}
-                                    onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                />
-                            </div>
-
-                            {/* Tags */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {PREDEFINED_TAGS.map(tag => (
-                                        <button
-                                            key={tag}
-                                            type="button"
-                                            onClick={() => toggleTag(tag)}
-                                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${formData.tags.includes(tag)
-                                                    ? 'bg-ocean-600 text-white'
-                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                                }`}
-                                        >
-                                            {tag}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Images Upload */}
-                            {formData.images.length < 10 && (
-                                <FileUploadZone
-                                    label={`Images (${formData.images.length}/10)`}
-                                    accept="image/*"
-                                    maxFiles={10 - formData.images.length}
-                                    uploadEndpoint={`${API_URL}/upload/image`}
-                                    onFilesUploaded={handleImagesUploaded}
-                                />
-                            )}
-
-                            {/* Image Grid */}
-                            {formData.images.length > 0 && (
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Images (Click star to set as cover)
-                                    </label>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        {formData.images.map((img, index) => (
-                                            <div key={index} className="relative group">
-                                                <img
-                                                    src={img.url}
-                                                    alt={`Upload ${index + 1}`}
-                                                    className={`w-full h-32 object-cover rounded-lg border-2 ${index === formData.cover_image_index
-                                                            ? 'border-yellow-500'
-                                                            : 'border-gray-200'
-                                                        }`}
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setCoverImage(index)}
-                                                    className={`absolute top-2 left-2 p-1 rounded-full transition-opacity ${index === formData.cover_image_index
-                                                            ? 'bg-yellow-500 text-white'
-                                                            : 'bg-white/80 text-gray-600 opacity-0 group-hover:opacity-100'
-                                                        }`}
-                                                    title="Set as cover image"
-                                                >
-                                                    <Star size={16} fill={index === formData.cover_image_index ? 'currentColor' : 'none'} />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeImage(index)}
-                                                    className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                                >
-                                                    <X size={16} />
-                                                </button>
-                                                <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                                                    #{index + 1}
-                                                </div>
-                                            </div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {PREDEFINED_TAGS.map(tag => (
+                                            <button
+                                                key={tag}
+                                                type="button"
+                                                onClick={() => toggleTag(tag)}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${formData.tags.includes(tag)
+                                                        ? 'bg-ocean-600 text-white shadow-sm'
+                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                    }`}
+                                            >
+                                                {tag}
+                                            </button>
                                         ))}
                                     </div>
                                 </div>
-                            )}
 
-                            {/* Video Upload */}
-                            {!formData.video_url && (
-                                <FileUploadZone
-                                    label="Video (Optional)"
-                                    accept="video/*"
-                                    maxFiles={1}
-                                    uploadEndpoint={`${API_URL}/upload/video`}
-                                    onFilesUploaded={handleVideoUploaded}
-                                />
-                            )}
+                                {/* Images Upload */}
+                                {formData.images.length < 10 && (
+                                    <FileUploadZone
+                                        label={`Images (${formData.images.length}/10)`}
+                                        accept="image/*"
+                                        maxFiles={10 - formData.images.length}
+                                        uploadEndpoint={`${API_URL}/upload/image`}
+                                        onFilesUploaded={handleImagesUploaded}
+                                    />
+                                )}
 
-                            {formData.video_url && (
-                                <div className="relative">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Video</label>
-                                    <div className="relative group">
-                                        <video src={formData.video_url} controls className="w-full max-h-64 rounded-lg" />
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, video_url: '' }))}
-                                            className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <X size={20} />
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Actions */}
-                            <div className="flex justify-between">
-                                <button
-                                    type="button"
-                                    onClick={handlePreview}
-                                    className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 min-h-[44px] font-bold flex items-center gap-2"
-                                    disabled={formData.images.length === 0}
-                                >
-                                    <Eye size={20} />
-                                    Preview
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 min-h-[44px] font-bold"
-                                >
-                                    {editingProject ? 'Update Project' : 'Save Project'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                )}
-
-                {/* Projects List */}
-                <div className="bg-white shadow rounded-lg overflow-hidden">
-                    <ul className="divide-y divide-gray-200">
-                        {projects.map((project) => (
-                            <li key={project.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
-                                <div className="flex items-center gap-4">
-                                    <img src={project.image_url} alt="" className="h-16 w-16 object-cover rounded" />
+                                {/* Image Grid */}
+                                {formData.images.length > 0 && (
                                     <div>
-                                        <h4 className="text-lg font-bold text-gray-900">{project.title}</h4>
-                                        <p className="text-sm text-gray-500">{project.category}</p>
-                                        {project.tags && project.tags.length > 0 && (
-                                            <div className="flex gap-1 mt-1">
-                                                {project.tags.map((tag, idx) => (
-                                                    <span key={idx} className="text-xs bg-ocean-100 text-ocean-700 px-2 py-0.5 rounded">
-                                                        {tag}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Images (Click star to set as cover)
+                                        </label>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            {formData.images.map((img, index) => (
+                                                <div key={index} className="relative group">
+                                                    <img
+                                                        src={img.url}
+                                                        alt={`Upload ${index + 1}`}
+                                                        className={`w-full h-32 object-cover rounded-lg border-2 transition-all ${index === formData.cover_image_index
+                                                                ? 'border-yellow-500 shadow-lg'
+                                                                : 'border-gray-200'
+                                                            }`}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setCoverImage(index)}
+                                                        className={`absolute top-2 left-2 p-1.5 rounded-full transition-all ${index === formData.cover_image_index
+                                                                ? 'bg-yellow-500 text-white shadow-md'
+                                                                : 'bg-white/90 text-gray-600 opacity-0 group-hover:opacity-100'
+                                                            }`}
+                                                        title="Set as cover image"
+                                                    >
+                                                        <Star size={16} fill={index === formData.cover_image_index ? 'currentColor' : 'none'} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeImage(index)}
+                                                        className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                    <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                                        #{index + 1}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="flex gap-2">
+                                )}
+
+                                {/* Video Upload */}
+                                {!formData.video_url && (
+                                    <FileUploadZone
+                                        label="Video (Optional)"
+                                        accept="video/*"
+                                        maxFiles={1}
+                                        uploadEndpoint={`${API_URL}/upload/video`}
+                                        onFilesUploaded={handleVideoUploaded}
+                                    />
+                                )}
+
+                                {formData.video_url && (
+                                    <div className="relative">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Video</label>
+                                        <div className="relative group">
+                                            <video src={formData.video_url} controls className="w-full max-h-64 rounded-lg" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, video_url: '' }))}
+                                                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                            >
+                                                <X size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Actions */}
+                                <div className="flex justify-between pt-4 border-t border-gray-200">
                                     <button
-                                        onClick={() => handleEdit(project)}
-                                        className="text-ocean-600 hover:text-ocean-900 p-2"
-                                        title="Edit Project"
+                                        type="button"
+                                        onClick={handlePreview}
+                                        className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium flex items-center gap-2 transition-colors"
+                                        disabled={formData.images.length === 0}
                                     >
-                                        <Edit size={20} />
+                                        <Eye size={20} />
+                                        Preview
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(project.id)}
-                                        className="text-red-600 hover:text-red-900 p-2"
-                                        title="Delete Project"
+                                        type="submit"
+                                        className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium transition-colors shadow-sm hover:shadow-md"
                                     >
-                                        <Trash2 size={20} />
+                                        {editingProject ? 'Update Project' : 'Save Project'}
                                     </button>
                                 </div>
-                            </li>
+                            </form>
+                        </div>
+                    )}
+
+                    {/* Projects Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {projects.map((project) => (
+                            <div key={project.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                                <div className="aspect-video overflow-hidden">
+                                    <img src={project.image_url} alt={project.title} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="p-4">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div className="flex-1">
+                                            <h4 className="text-lg font-bold text-gray-900 mb-1">{project.title}</h4>
+                                            <p className="text-sm text-gray-500">{project.category}</p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleEdit(project)}
+                                                className="p-2 text-ocean-600 hover:bg-ocean-50 rounded-lg transition-colors"
+                                                title="Edit Project"
+                                            >
+                                                <Edit size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(project.id)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="Delete Project"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {project.tags && project.tags.length > 0 && (
+                                        <div className="flex flex-wrap gap-1 mt-2">
+                                            {project.tags.map((tag: string, idx: number) => (
+                                                <span key={idx} className="text-xs bg-ocean-50 text-ocean-700 px-2 py-1 rounded-md font-medium">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         ))}
                         {projects.length === 0 && !loading && (
-                            <li className="p-8 text-center text-gray-500">No projects found. Add one above!</li>
+                            <div className="col-span-full text-center py-12 text-gray-500">
+                                <FolderKanban size={48} className="mx-auto mb-4 text-gray-300" />
+                                <p className="text-lg font-medium">No projects found</p>
+                                <p className="text-sm">Click "Add Project" to create your first project</p>
+                            </div>
                         )}
-                    </ul>
-                </div>
-            </main>
+                    </div>
+                </main>
+            </div>
 
             {/* Preview Modal */}
             {previewProject && (
