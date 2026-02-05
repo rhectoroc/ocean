@@ -41,21 +41,26 @@ const Navbar = () => {
                         </Link>
                     </div>
 
-                    {/* Desktop Menu */}
                     <div className="hidden md:flex items-center space-x-8">
                         {navItems.map((item) => (
-                            <Link
+                            <a
                                 key={item.name}
-                                to={item.path.startsWith('/#') ? '/' : item.path}
+                                href={item.path}
+                                onClick={(e) => {
+                                    if (item.path.startsWith('/#')) {
+                                        e.preventDefault();
+                                        const id = item.path.substring(2);
+                                        const element = document.getElementById(id);
+                                        if (element) {
+                                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }
+                                    }
+                                }}
+                                className={`px-3 py-2 text-sm font-bold transition-colors duration-200 ${isScrolled ? 'text-gray-700 hover:text-ocean-600' : 'text-white hover:text-ocean-300'
+                                    }`}
                             >
-                                <a
-                                    href={item.path}
-                                    className={`px-3 py-2 text-sm font-bold transition-colors duration-200 ${isScrolled ? 'text-gray-700 hover:text-ocean-600' : 'text-white hover:text-ocean-300'
-                                        }`}
-                                >
-                                    {item.name}
-                                </a>
-                            </Link>
+                                {item.name}
+                            </a>
                         ))}
                         <a
                             href="tel:+10000000000"
@@ -104,8 +109,18 @@ const Navbar = () => {
                             <a
                                 key={item.name}
                                 href={item.path}
+                                onClick={(e) => {
+                                    if (item.path.startsWith('/#')) {
+                                        e.preventDefault();
+                                        const id = item.path.substring(2);
+                                        const element = document.getElementById(id);
+                                        if (element) {
+                                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }
+                                    }
+                                    setIsOpen(false);
+                                }}
                                 className="block px-3 py-4 rounded-md text-base font-medium text-gray-700 hover:text-ocean-600 hover:bg-gray-50 min-h-[44px] flex items-center"
-                                onClick={() => setIsOpen(false)}
                             >
                                 {item.name}
                             </a>
