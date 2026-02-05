@@ -3,7 +3,7 @@ import { Upload, Image as ImageIcon, Trash2, GripVertical, Eye, EyeOff } from 'l
 import type { GalleryImage } from '../../lib/galleryApi';
 import { fetchGalleryImages, createGalleryImage, updateGalleryImage, deleteGalleryImage, reorderGalleryImages } from '../../lib/galleryApi';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || '';
 const MAX_IMAGES = 10;
 
 const Gallery = () => {
