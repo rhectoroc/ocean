@@ -28,10 +28,7 @@ const Gallery = () => {
         }
     };
 
-    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
+    const processFile = async (file: File) => {
         if (images.length >= MAX_IMAGES) {
             alert(`Maximum of ${MAX_IMAGES} images allowed`);
             return;
@@ -45,12 +42,33 @@ const Gallery = () => {
 
             await createGalleryImage(formData);
             await loadImages();
-            e.target.value = '';
         } catch (error: any) {
             console.error('Error uploading image:', error);
             alert(error.message || 'Failed to upload image');
         } finally {
             setUploading(false);
+        }
+    };
+
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        await processFile(file);
+        e.target.value = '';
+    };
+
+    const handleZoneDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleZoneDrop = async (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const file = e.dataTransfer.files?.[0];
+        if (file && file.type.startsWith('image/')) {
+            await processFile(file);
         }
     };
 
@@ -131,10 +149,13 @@ const Gallery = () => {
 
             {/* Upload Section */}
             <div className="mb-8">
-                <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${images.length >= MAX_IMAGES
-                    ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
-                    : 'border-ocean-300 bg-ocean-50 hover:bg-ocean-100'
-                    }`}>
+                <label
+                    onDragOver={handleZoneDragOver}
+                    onDrop={handleZoneDrop}
+                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${images.length >= MAX_IMAGES
+                        ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
+                        : 'border-ocean-300 bg-ocean-50 hover:bg-ocean-100'
+                        }`}>
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         {uploading ? (
                             <div className="w-8 h-8 border-4 border-ocean-200 border-t-ocean-600 rounded-full animate-spin" />
