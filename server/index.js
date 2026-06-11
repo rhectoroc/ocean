@@ -61,34 +61,6 @@ app.use(express.urlencoded({ extended: true }));
 // --- AUTH.JS MIDDLEWARE ---
 // This handles /api/auth/* routes automatically (signin, signout, session, etc.)
 app.use("/api/auth", ExpressAuth(authConfig));
-
-// --- SEED ADMIN (Ensure at least one user exists) ---
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
-async function seedAdmin() {
-    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
-        console.log('Skipping Admin seed: ADMIN_EMAIL or ADMIN_PASSWORD not provided in environment variables.');
-        return;
-    }
-    try {
-        const result = await query('SELECT * FROM users WHERE email = $1', [ADMIN_EMAIL]);
-        if (result.rows.length === 0) {
-            console.log(`Admin user ${ADMIN_EMAIL} not found. Creating...`);
-            const hash = await bcrypt.hash(ADMIN_PASSWORD, 10);
-            await query('INSERT INTO users (email, password_hash) VALUES ($1, $2)', [ADMIN_EMAIL, hash]);
-            console.log('Admin user created successfully.');
-        } else if (process.env.FORCE_ADMIN_RESET === 'true') {
-            const hash = await bcrypt.hash(ADMIN_PASSWORD, 10);
-            await query('UPDATE users SET password_hash = $2 WHERE email = $1', [ADMIN_EMAIL, hash]);
-            console.log('Admin password reset forced via ENV.');
-        }
-    } catch (err) {
-        console.error('Seeding error:', err);
-    }
-}
-seedAdmin();
-
 // --- AUTHENTICATION MIDDLEWARE ---
 const authenticatedUser = async (req, res, next) => {
     const session = await getSession(req, authConfig);
