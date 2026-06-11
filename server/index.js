@@ -222,7 +222,7 @@ app.use('/api/users', authenticatedUser, usersRoutes);
 
 // Bot routes (Mixed: Config is protected, Context is public)
 app.use('/api/bot', async (req, res, next) => {
-    if (req.path.startsWith('/context/')) {
+    if (req.path.startsWith('/context/') || req.path === '/chat') {
         return next();
     }
     return authenticatedUser(req, res, next);
