@@ -1,6 +1,8 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import hpp from 'hpp';
 import { query } from './db.js';
 import { ExpressAuth, getSession } from "@auth/express";
 import { authConfig } from "./auth.config.js";
@@ -58,9 +60,33 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Prevent HTTP Parameter Pollution
+app.use(hpp());
+
+// Global Rate Limiter
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 200, // Limit each IP to 200 requests per windowMs
+    message: { error: 'Too many requests from this IP, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Strict Rate Limiter for Auth & Bot
+const strictLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 30, // Limit each IP to 30 requests per windowMs
+    message: { error: 'Too many attempts from this IP, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Apply global rate limiter to all API routes
+app.use('/api/', globalLimiter);
+
 // --- AUTH.JS MIDDLEWARE ---
 // This handles /api/auth/* routes automatically (signin, signout, session, etc.)
-app.use("/api/auth", ExpressAuth(authConfig));
+app.use("/api/auth", strictLimiter, ExpressAuth(authConfig));
 // --- AUTHENTICATION MIDDLEWARE ---
 const authenticatedUser = async (req, res, next) => {
     const session = await getSession(req, authConfig);
@@ -221,7 +247,7 @@ app.use('/api/gallery', authenticatedUser, galleryRoutes);
 app.use('/api/users', authenticatedUser, usersRoutes);
 
 // Bot routes (Mixed: Config is protected, Context is public)
-app.use('/api/bot', async (req, res, next) => {
+app.use('/api/bot', strictLimiter, async (req, res, next) => {
     if (req.path.startsWith('/context/') || req.path === '/chat') {
         return next();
     }
