@@ -63,10 +63,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", ExpressAuth(authConfig));
 
 // --- SEED ADMIN (Ensure at least one user exists) ---
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'rhectoroc@gmail.com';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'FvBBy2W$2476';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 async function seedAdmin() {
+    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+        console.log('Skipping Admin seed: ADMIN_EMAIL or ADMIN_PASSWORD not provided in environment variables.');
+        return;
+    }
     try {
         const result = await query('SELECT * FROM users WHERE email = $1', [ADMIN_EMAIL]);
         if (result.rows.length === 0) {
