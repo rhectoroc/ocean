@@ -6,3 +6,7 @@
 - Feat: Gallery Multiple Upload & Drag-and-Drop.
 - Fix: Gallery Image Paths (using process.cwd() for production compatibility).
 - UX: Added Manual "Save Order" button in Gallery.
+
+## 2026-06-11
+- Architecture: Separated Public Web into a new project (Web) from Admin Panel (AppOcean).
+- Refactor: Removed public routes and components from AppOcean. AppOcean now only serves `/admin`.
