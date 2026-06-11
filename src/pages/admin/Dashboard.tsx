@@ -464,7 +464,7 @@ const Dashboard = () => {
                                                             <img
                                                                 src={img.url}
                                                                 alt={`Upload ${index + 1}`}
-                                                                className={`w-full h-32 object-cover rounded-lg border-2 transition-all ${index === formData.cover_image_index
+                                                                className={`w-full h-32 object-contain bg-gray-50 rounded-lg border-2 transition-all ${index === formData.cover_image_index
                                                                     ? 'border-yellow-500 shadow-lg'
                                                                     : 'border-gray-200'
                                                                     }`}
