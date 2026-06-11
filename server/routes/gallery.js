@@ -19,19 +19,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get active gallery images only (for public site)
-router.get('/active', async (req, res) => {
-    try {
-        const result = await query(
-            'SELECT id, image_url, thumbnail_url, title, description, display_order FROM gallery WHERE is_active = true ORDER BY display_order ASC LIMIT $1',
-            [MAX_GALLERY_IMAGES]
-        );
-        res.json(result.rows);
-    } catch (error) {
-        console.error('Error fetching active gallery images:', error);
-        res.status(500).json({ error: 'Failed to fetch active gallery images' });
-    }
-});
+
 
 // Create new gallery image
 router.post('/', uploadImage.single('file'), async (req, res) => {

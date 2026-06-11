@@ -34,10 +34,25 @@ app.use(helmet({
     },
 }));
 
+const allowedOrigins = [
+    'https://ocean-web.1m85g5.easypanel.host',
+    'https://oceanconstruction.us',
+    'https://app.oceanconstruction.us',
+    'http://localhost:5173',
+    'http://localhost:5174'
+];
+
 app.use(cors({
-    origin: '*',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(null, false);
+        }
+    },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
 }));
 
 app.use(express.json());
@@ -212,6 +227,17 @@ app.get('/api/projects', async (req, res) => {
 });
 
 // --- API ROUTES ---
+// GET /api/gallery/active
+app.get('/api/gallery/active', async (req, res) => {
+    try {
+        const result = await query('SELECT * FROM gallery WHERE is_active = true ORDER BY display_order ASC');
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error fetching active gallery images:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // Gallery routes (protected)
 app.use('/api/gallery', authenticatedUser, galleryRoutes);
 
